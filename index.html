@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiruvannamalai Temple Pilgrim Guide</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="branding">
+          <span class="brand-title">Tiruvannamalai</span>
+          <span class="brand-subtitle">Pilgrim Guide</span>
+        </div>
+        <nav class="site-nav">
+          <a class="active" href="./index.html">Home</a>
+          <a href="./girivalam.html">Tiruvannamalai/Girivalam</a>
+          <a href="./accommodation.html">Accommodation</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h1>Tiruvannamalai (Tiruvanamalai) Temple Pilgrim Guide</h1>
+          <p>
+            Plan your visit to the sacred Arunachaleswarar Temple and the
+            surrounding pilgrimage circuit with practical information, distance
+            guidance, and stay options.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>Find your distance to Tiruvannamalai</h2>
+          <p>
+            Choose a city or use your current location to see the straight-line
+            distance to Tiruvannamalai.
+          </p>
+          <div class="distance-card">
+            <label for="originSelect">Select your starting location</label>
+            <select id="originSelect">
+              <option value="" selected disabled>Select a city</option>
+              <option data-lat="13.0827" data-lon="80.2707">Chennai</option>
+              <option data-lat="12.9716" data-lon="77.5946">Bengaluru</option>
+              <option data-lat="11.0168" data-lon="76.9558">Coimbatore</option>
+              <option data-lat="9.9252" data-lon="78.1198">Madurai</option>
+              <option data-lat="10.7905" data-lon="78.7047">Tiruchirappalli</option>
+              <option data-lat="11.9416" data-lon="79.8083">Puducherry</option>
+              <option data-lat="17.3850" data-lon="78.4867">Hyderabad</option>
+              <option data-lat="19.0760" data-lon="72.8777">Mumbai</option>
+              <option data-lat="28.6139" data-lon="77.2090">New Delhi</option>
+            </select>
+            <button id="geoButton" type="button">Use my current location</button>
+            <p id="distanceResult" class="distance-result" aria-live="polite">
+              Select a location to see the distance.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section muted">
+        <div class="container">
+          <h2>Pilgrim essentials</h2>
+          <div class="grid">
+            <div class="card">
+              <h3>Temple visit</h3>
+              <p>
+                Start early to avoid crowds, dress modestly, and keep enough
+                time for darshan and the inner prakaram.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Girivalam guidance</h3>
+              <p>
+                The 14 km parikrama path circles Arunachala hill and is lined
+                with shrines, water points, and rest stops.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Travel planning</h3>
+              <p>
+                Tiruvannamalai is well connected by road from Chennai, Bengaluru,
+                and nearby Tamil Nadu cities.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>Quick links</h2>
+          <div class="grid">
+            <a class="card link-card" href="./girivalam.html">
+              <h3>Girivalam route</h3>
+              <p>Temples and places to visit on the circumambulation path.</p>
+            </a>
+            <a class="card link-card" href="./accommodation.html">
+              <h3>Accommodation</h3>
+              <p>Stay options, guest houses, and pilgrim-friendly lodging.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <h3>Sources</h3>
+        <ul class="source-list">
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Arunachalesvara_Temple"
+              >Arunachaleswarar Temple - Wikipedia</a
+            >
+          </li>
+          <li>
+            <a href="https://www.openstreetmap.org/#map=13/12.2253/79.0747"
+              >Tiruvannamalai location - OpenStreetMap</a
+            >
+          </li>
+        </ul>
+        <p class="footer-note">
+          Distances shown are approximate straight-line distances for planning.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
