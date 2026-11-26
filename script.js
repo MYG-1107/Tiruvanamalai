@@ -98,20 +98,19 @@ function makeNumberedIcon(number, kind = "lingam") {
 }
 
 function makeBaseLayers(map) {
-  const cartoStreet = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    {
-      subdomains: "abcd",
-      maxZoom: 20,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-    }
-  );
-
-  const osmStandard = L.tileLayer(
+  const osmStreet = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
+    }
+  );
+
+  const esriStreet = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution: "Tiles &copy; Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community"
     }
   );
 
@@ -132,12 +131,12 @@ function makeBaseLayers(map) {
   );
 
   const satellite = L.layerGroup([imagery, imageryLabels]);
-  cartoStreet.addTo(map);
+  osmStreet.addTo(map);
 
   L.control.layers(
     {
-      "Street map": cartoStreet,
-      "OpenStreetMap": osmStandard,
+      "OpenStreetMap": osmStreet,
+      "Esri street map": esriStreet,
       "Satellite": satellite
     },
     null,
@@ -146,7 +145,6 @@ function makeBaseLayers(map) {
 
   L.control.scale({ imperial: false, position: "bottomleft", maxWidth: 120 }).addTo(map);
 }
-
 function bindFullscreen(buttonId, mapElementId, map) {
   const button = document.getElementById(buttonId);
   const mapElement = document.getElementById(mapElementId);
