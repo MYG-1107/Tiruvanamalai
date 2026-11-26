@@ -514,7 +514,7 @@
   }
 
   function updateAdiGuidance(projection) {
-    if (!state.adiAlong || !state.routeLength || !projection) return;
+    if (state.adiAlong == null || !state.routeLength || !projection) return;
     const metresAhead = (state.adiAlong - projection.along + state.routeLength) % state.routeLength;
     let stage = 0;
     if (metresAhead <= ADI_ARRIVAL_METRES) stage = 2;
