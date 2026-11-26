@@ -26,7 +26,7 @@ The first two map points are:
 
 **Sivanagar Temple** is included as the third requested temple. Its exact identity and coordinates could not be verified from public map references during development. The page makes a place-name lookup and only adds a pin if a nearby result's place name specifically matches Sivanagar. Otherwise it offers map-search links and explicitly withholds the distance instead of inventing a location. Once verified, add the correct latitude and longitude to the Sivanagar entry in script.js.
 
-To add more temples later, add an object to TEMPLE_PLACES in script.js with a unique id, a display name, a search query, and verified latitude / longitude coordinates. To add further Girivalam stops, add a stop to GIRIVALAM_STOPS in the required clockwise order and update the route order used by loadGirivalamRoadRoute().
+To add more temple cards later, add an object to TEMPLE_PLACES in script.js with a unique id, a display name, a search query, and verified latitude / longitude coordinates. To add or correct a Girivalam waypoint, edit ROUTE_STOPS in girivalam/girivalam-map.js and retain the clockwise circuit order.
 
 ## Map-only Girivalam tracker
 
