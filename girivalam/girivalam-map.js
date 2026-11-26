@@ -7,6 +7,10 @@
   "use strict";
 
   const MAP_CENTRE = [12.2388, 79.0525];
+  const MAP_MAX_ZOOM = 21;
+  const MAP_NATIVE_MAX_ZOOM = 19;
+  const ADI_APPROACH_METRES = 600;
+  const ADI_ARRIVAL_METRES = 90;
   const EXPECTED_CIRCUIT_KM = 14;
   const ROUTING_BASE = "https://routing.openstreetmap.de/routed-foot/route/v1/driving";
   const GPS_MAX_ACCURACY_METRES = 65;
@@ -53,7 +57,10 @@
     completed: false,
     lastUiUpdate: 0,
     lastRouteRequest: 0,
-    connectorBusy: false
+    connectorBusy: false,
+    adiAlong: null,
+    adiCueStage: 0,
+    voiceEnabled: false
   };
 
   const el = {};
@@ -97,35 +104,60 @@
     return Math.min(START_RADIUS_MAX_METRES, Math.max(START_RADIUS_METRES, accuracy + 8));
   }
 
+  function tileOptions(options = {}) {
+    return {
+      minZoom: 2,
+      maxZoom: MAP_MAX_ZOOM,
+      maxNativeZoom: MAP_NATIVE_MAX_ZOOM,
+      keepBuffer: 3,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      ...options
+    };
+  }
+
   function makeBaseLayers() {
-    const osm = L.tileLayer(
+    const street = L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
+      tileOptions({
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }
+      })
     );
-    const satellite = L.tileLayer(
+    const imagery = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 19,
+      tileOptions({
         attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
-      }
+      })
     );
     const labels = L.tileLayer(
       "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 19, attribution: "Labels &copy; Esri" }
+      tileOptions({ attribution: "Labels &copy; Esri" })
     );
-    const satelliteWithLabels = L.layerGroup([satellite, labels]);
-    osm.addTo(state.map);
+    const satelliteWithLabels = L.layerGroup([imagery, labels]);
+    satelliteWithLabels.addTo(state.map);
+
+    // Zooms beyond a provider's native tile level are served from its last
+    // native zoom and scaled by Leaflet, rather than requesting missing tiles.
+    // If the imagery endpoint itself fails repeatedly, switch to a street map.
+    let imageryErrors = 0;
+    imagery.on("tileload", () => {
+      imageryErrors = Math.max(0, imageryErrors - 1);
+    });
+    imagery.on("tileerror", () => {
+      imageryErrors += 1;
+      if (imageryErrors < 7 || !state.map.hasLayer(satelliteWithLabels)) return;
+      state.map.removeLayer(satelliteWithLabels);
+      street.addTo(state.map);
+      setStatus("Satellite imagery is temporarily unavailable. Street map is shown instead; choose Satellite in map layers to retry.");
+    });
+
     L.control.layers(
-      { "Street": osm, "Satellite": satelliteWithLabels },
+      { "Satellite (default)": satelliteWithLabels, "Street": street },
       null,
       { position: "topright", collapsed: true }
     ).addTo(state.map);
     L.control.scale({ imperial: false, position: "bottomleft", maxWidth: 100 }).addTo(state.map);
   }
-
   function markerIcon(label, kind) {
     return L.divIcon({
       className: "girivalam-marker-shell",
@@ -138,12 +170,27 @@
 
   function showStopMarkers() {
     ROUTE_STOPS.forEach((stop) => {
+      const isAdi = stop.id === "adi";
       const marker = L.marker([stop.lat, stop.lon], {
-        icon: markerIcon(stop.number, stop.id === "adi" ? "temple" : "lingam"),
+        icon: markerIcon(isAdi ? "A" : stop.number, isAdi ? "adi" : "lingam"),
         title: stop.name,
-        keyboard: true
+        keyboard: true,
+        riseOnHover: true
       }).addTo(state.map);
-      marker.bindPopup(`<strong>${stop.name}</strong><br><small>${stop.direction}</small>`);
+
+      if (isAdi) {
+        const apple = makeNavigationUrl(stop, "apple");
+        const google = makeNavigationUrl(stop, "google");
+        marker.bindPopup(
+          `<div class="adi-map-popup"><span class="adi-popup-kicker">IMPORTANT GIRIVALAM STOP · PLEASE DO NOT MISS</span><strong>ஆதி அண்ணாமலையார் திருக்கோயில்<br>Adi Annamalaiyar Temple</strong><p>A major temple on the Girivalam path at Adi Annamalai. Please plan a stop here for darshan before continuing your walk.</p><div class="adi-popup-links"><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a><a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></div></div>`
+        );
+      } else {
+        const apple = makeNavigationUrl(stop, "apple");
+        const google = makeNavigationUrl(stop, "google");
+        marker.bindPopup(
+          `<div><strong>${stop.name}</strong><br><small>${stop.direction}</small><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+        );
+      }
       state.stopMarkers.push(marker);
     });
   }
@@ -230,6 +277,10 @@
       color: "#c17a37", weight: 5, opacity: 1, lineCap: "round", lineJoin: "round"
     }).addTo(state.map);
     state.routeReady = true;
+    const adiStop = ROUTE_STOPS.find((stop) => stop.id === "adi");
+    const adiProjection = adiStop ? projectToCircuit(adiStop) : null;
+    state.adiAlong = adiProjection ? adiProjection.along : null;
+    state.adiCueStage = 0;
 
     if (el.totalDistance) el.totalDistance.textContent = `${formatKm(state.routeLength)} km`;
     fitCircuit();
@@ -277,10 +328,17 @@
     return closest;
   }
 
-  function makeNavigationUrl(destination) {
+  function makeNavigationUrl(destination, provider = "apple") {
     const origin = state.location
       ? `${state.location.lat},${state.location.lon}`
       : "";
+    if (provider === "apple") {
+      const url = new URL("https://maps.apple.com/");
+      url.searchParams.set("daddr", `${destination.lat},${destination.lon}`);
+      url.searchParams.set("dirflg", "w");
+      if (origin) url.searchParams.set("saddr", origin);
+      return url.toString();
+    }
     const url = new URL("https://www.google.com/maps/dir/");
     url.searchParams.set("api", "1");
     url.searchParams.set("destination", `${destination.lat},${destination.lon}`);
@@ -439,6 +497,53 @@
     return projectToCircuit(location);
   }
 
+  function speakGuidance(message) {
+    if (!state.voiceEnabled || !window.speechSynthesis ||
+        typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    const utterance = new window.SpeechSynthesisUtterance(message);
+    utterance.lang = "en-IN";
+    utterance.rate = 0.96;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function updateAdiGuidance(projection) {
+    if (!state.adiAlong || !state.routeLength || !projection) return;
+    const metresAhead = (state.adiAlong - projection.along + state.routeLength) % state.routeLength;
+    let stage = 0;
+    if (metresAhead <= ADI_ARRIVAL_METRES) stage = 2;
+    else if (metresAhead <= ADI_APPROACH_METRES) stage = 1;
+    if (stage === 0 || stage <= state.adiCueStage) return;
+
+    state.adiCueStage = stage;
+    const message = stage === 2
+      ? "You are near Adi Annamalaiyar Temple, ஆதி அண்ணாமலையார் திருக்கோயில். Please stop and visit this important Girivalam temple before continuing."
+      : `Important Girivalam stop ahead: Adi Annamalaiyar Temple in about ${Math.max(50, Math.round(metresAhead / 50) * 50)} metres. Please plan to stop and visit before continuing clockwise.`;
+    setStatus(message);
+    speakGuidance(stage === 2
+      ? "You are approaching Adi Annamalaiyar Temple. Please stop and visit this important temple before continuing the Girivalam walk."
+      : `Adi Annamalaiyar Temple is coming up in approximately ${Math.round(metresAhead)} metres. Please make time to visit this important temple.`);
+  }
+
+  function toggleVoiceGuidance() {
+    state.voiceEnabled = !state.voiceEnabled;
+    if (el.voiceButton) {
+      el.voiceButton.classList.toggle("is-active", state.voiceEnabled);
+      el.voiceButton.setAttribute("aria-pressed", String(state.voiceEnabled));
+      el.voiceButton.setAttribute("aria-label", state.voiceEnabled ? "Turn off voice guidance" : "Turn on voice guidance");
+      el.voiceButton.title = state.voiceEnabled ? "Voice guidance on" : "Voice guidance off";
+    }
+    if (state.voiceEnabled) {
+      const message = "Voice guidance is on. You will be alerted before reaching Adi Annamalaiyar Temple.";
+      setStatus(message);
+      speakGuidance(message);
+    } else {
+      window.speechSynthesis?.cancel();
+      setStatus("Voice guidance is off. Temple approach messages will still appear on the map.");
+    }
+  }
+
   function beginWalk() {
     if (!state.routeReady) {
       setStatus("The Girivalam route is still loading");
@@ -539,6 +644,7 @@
 
     if (delta > 0) state.walkedMetres = Math.min(state.routeLength, state.walkedMetres + delta);
     state.lastAlong = projection.along;
+    updateAdiGuidance(projection);
     maybeCompleteWalk(location, projection);
     updateProgressUi();
   }
@@ -675,6 +781,7 @@
     el.startButton = byId("startOrFinishWalk");
     el.goToStart = byId("goToStart");
     el.retryButton = byId("retryCircuit");
+    el.voiceButton = byId("voiceGuidance");
 
     el.startButton?.addEventListener("click", () => {
       if (state.tracking) {
@@ -688,13 +795,14 @@
       const needsDirections = state.location &&
         distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres();
       if (needsDirections) {
-        const opened = window.open(makeNavigationUrl(state.startPoint), "_blank", "noopener");
+        const opened = window.open(makeNavigationUrl(state.startPoint, "apple"), "_blank", "noopener");
         if (!opened) setStatus("Allow pop-ups to open walking directions");
         return;
       }
       state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
       state.startMarker?.openPopup();
     });
+    el.voiceButton?.addEventListener("click", toggleVoiceGuidance);
     byId("centreMap")?.addEventListener("click", centreOnUser);
     byId("fullscreenMap")?.addEventListener("click", toggleFullscreen);
     el.retryButton?.addEventListener("click", loadCircuit);
@@ -714,6 +822,9 @@
     state.map = L.map(container, {
       zoomControl: true,
       scrollWheelZoom: true,
+      maxZoom: MAP_MAX_ZOOM,
+      zoomSnap: 0.5,
+      zoomDelta: 0.5,
       preferCanvas: true
     }).setView(MAP_CENTRE, 13);
 
