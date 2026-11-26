@@ -1,6 +1,8 @@
 /* Tiruvannamalai Pilgrim Guide — map and location interactions */
 const TIRUVANNAMALAI_CENTER = [12.2388, 79.0525];
 const MAX_LOCAL_FIT_DISTANCE_KM = 35;
+const MAP_MAX_ZOOM = 21;
+const MAP_NATIVE_MAX_ZOOM = 19;
 
 const TEMPLE_PLACES = [
   {
@@ -8,11 +10,12 @@ const TEMPLE_PLACES = [
     number: "01",
     name: "Arulmigu Adhi Annamalaiyar Temple",
     shortName: "Adi Annamalaiyar Temple",
-    description: "A revered Shiva temple on the Girivalam road at Adi Annamalai.",
+    description: "An important Shiva temple on the Girivalam road at Adi Annamalai. Please make time to visit this easily overlooked shrine during your pilgrimage.",
     query: "Arulmigu Adhi Annamalaiyar Temple, Kirivalapathai, Tiruvannamalai, Tamil Nadu 606604, India",
     lat: 12.2518,
     lon: 79.0402,
-    pinNote: "Approximate map pin; verify the entrance locally."
+    pinNote: "Important Girivalam stop. The map pin is approximate; follow local temple signs to the correct entrance.",
+    featured: true
   },
   {
     id: "arunachaleswarar",
@@ -97,47 +100,68 @@ function makeNumberedIcon(number, kind = "lingam") {
   });
 }
 
+function mapTileOptions(options = {}) {
+  return {
+    minZoom: 2,
+    maxZoom: MAP_MAX_ZOOM,
+    maxNativeZoom: MAP_NATIVE_MAX_ZOOM,
+    keepBuffer: 3,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    ...options
+  };
+}
+
 function makeBaseLayers(map) {
   const osmStreet = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom: 19,
+    mapTileOptions({
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
-    }
+    })
   );
 
   const esriStreet = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-    {
-      maxZoom: 19,
+    mapTileOptions({
       attribution: "Tiles &copy; Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community"
-    }
+    })
   );
 
   const imagery = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-      maxZoom: 19,
-      attribution: "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community"
-    }
+    mapTileOptions({
+      attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+    })
   );
 
   const imageryLabels = L.tileLayer(
     "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-    {
-      maxZoom: 19,
-      attribution: "Labels &copy; Esri"
-    }
+    mapTileOptions({ attribution: "Labels &copy; Esri" })
   );
 
   const satellite = L.layerGroup([imagery, imageryLabels]);
-  osmStreet.addTo(map);
+  satellite.addTo(map);
+
+  // If the satellite service has a real outage, fall back to a street layer
+  // instead of leaving the map covered with failed tile placeholders.
+  let imageryErrors = 0;
+  imagery.on("tileload", () => {
+    imageryErrors = Math.max(0, imageryErrors - 1);
+  });
+  imagery.on("tileerror", () => {
+    imageryErrors += 1;
+    if (imageryErrors < 7 || !map.hasLayer(satellite)) return;
+    map.removeLayer(satellite);
+    osmStreet.addTo(map);
+    const status = document.getElementById("homeMapStatus");
+    if (status) status.textContent = "Satellite imagery is temporarily unavailable. Street map is shown instead; choose Satellite in map layers to retry.";
+  });
 
   L.control.layers(
     {
+      "Satellite (default)": satellite,
       "OpenStreetMap": osmStreet,
-      "Esri street map": esriStreet,
-      "Satellite": satellite
+      "Esri street map": esriStreet
     },
     null,
     { position: "topright", collapsed: true }
@@ -211,9 +235,10 @@ function renderTempleCards() {
       ? `<button class="text-action" type="button" data-focus-place="${place.id}">Show on map</button>`
       : "";
     return `
-      <article class="temple-card ${isPinned ? "" : "temple-card-pending"}" data-temple-card="${place.id}">
+      <article class="temple-card ${isPinned ? "" : "temple-card-pending"} ${place.featured ? "temple-card-featured" : ""}" data-temple-card="${place.id}">
         <span class="temple-index">${place.number}</span>
         <div>
+          ${place.featured ? '<span class="temple-featured-tag">IMPORTANT GIRIVALAM STOP · PLEASE DO NOT MISS</span>' : ""}
           <h3>${place.name}</h3>
           <p>${place.description}</p>
           <p class="temple-distance" data-distance-for="${place.id}">${distanceText}</p>
@@ -238,16 +263,20 @@ function addTempleMarker(place) {
   if (!visitMap || !window.L || place.lat == null || place.lon == null) return;
   if (templeMarkers.has(place.id)) return;
 
-  const kind = place.id === "arunachaleswarar" ? "main" : "temple";
+  const kind = place.id === "arunachaleswarar" ? "main" : place.id === "adi-annamalai" ? "adi" : "temple";
+  const markerLabel = place.id === "adi-annamalai" ? "A" : place.number;
   const marker = L.marker([place.lat, place.lon], {
-    icon: makeNumberedIcon(place.number, kind),
+    icon: makeNumberedIcon(markerLabel, kind),
     title: place.name,
     riseOnHover: true
   }).addTo(visitMap);
 
   const links = directionUrls(place);
+  const featuredHeading = place.featured
+    ? "<span class=\"map-popup-kicker\">IMPORTANT GIRIVALAM STOP</span><strong>ஆதி அண்ணாமலையார் திருக்கோயில்<br>Adi Annamalaiyar Temple</strong>"
+    : `<strong>${place.name}</strong>`;
   marker.bindPopup(
-    `<div class="map-popup"><strong>${place.name}</strong><p>${place.description}</p><a href="${links.google}" target="_blank" rel="noopener noreferrer">Walking directions ↗</a></div>`
+    `<div class="map-popup">${featuredHeading}<p>${place.description}</p><div class="map-popup-actions"><a href="${links.apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a><a href="${links.google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></div></div>`
   );
   marker.on("click", () => highlightTempleCard(place.id));
   templeMarkers.set(place.id, marker);
@@ -433,6 +462,9 @@ function initialiseHomeMap() {
   visitMap = L.map(mapElement, {
     scrollWheelZoom: false,
     zoomControl: true,
+    maxZoom: MAP_MAX_ZOOM,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
     preferCanvas: true
   }).setView(TIRUVANNAMALAI_CENTER, 14);
 
@@ -625,6 +657,9 @@ function initialiseGirivalamMap() {
   girivalamMap = L.map(mapElement, {
     scrollWheelZoom: false,
     zoomControl: true,
+    maxZoom: MAP_MAX_ZOOM,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
     preferCanvas: true
   }).setView(TIRUVANNAMALAI_CENTER, 13);
 
