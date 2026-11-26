@@ -419,7 +419,11 @@
       title: "Your Girivalam start and finish point",
       zIndexOffset: 900
     }).addTo(state.map);
-    state.startMarker.bindPopup("<strong>Your Girivalam start / finish</strong>");
+    const appleStartUrl = makeNavigationUrl(state.startPoint, "apple");
+    const googleStartUrl = makeNavigationUrl(state.startPoint, "google");
+    state.startMarker.bindPopup(
+      `<div><strong>Your Girivalam start / finish</strong><p><a href="${appleStartUrl}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${googleStartUrl}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+    );
     el.goToStart?.classList.remove("is-hidden");
     updateStartNavigationUrl();
     updateProgressUi();
