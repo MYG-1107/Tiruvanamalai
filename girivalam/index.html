@@ -38,6 +38,7 @@
 </head>
 <body class="girivalam-map-only">
   <main class="map-app" aria-label="Live Girivalam map">
+    <h1 class="map-visually-hidden">Live Girivalam GPS map for the approximately 14 km Arunachala circuit</h1>
     <div id="liveGirivalamMap" class="live-girivalam-map" role="application" aria-label="Map showing the Girivalam walking circuit around Arunachala Hill, the nearest start point and your live GPS position">
       <div class="map-placeholder">Loading map…</div>
     </div>
@@ -65,6 +66,9 @@
       </button>
       <button id="fullscreenMap" class="map-app-button" type="button" aria-label="Toggle full screen map" title="Full screen">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
+      </button>
+      <button id="retryCircuit" class="map-app-button map-app-retry" type="button" aria-label="Retry loading Girivalam route" title="Retry route" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg>
       </button>
     </div>
 
