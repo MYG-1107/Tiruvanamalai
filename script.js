@@ -1,7 +1,7 @@
 /* Tiruvannamalai Pilgrim Guide — map and location interactions */
 const TIRUVANNAMALAI_CENTER = [12.2388, 79.0525];
 const MAX_LOCAL_FIT_DISTANCE_KM = 35;
-const MAP_MAX_ZOOM = 21;
+const MAP_MAX_ZOOM = 23;
 const MAP_NATIVE_MAX_ZOOM = 19;
 
 const TEMPLE_PLACES = [
