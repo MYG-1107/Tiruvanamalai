@@ -59,3 +59,27 @@ Open index.html through a local web server (recommended) or deploy the repositor
 Shrine coordinates are public map pins, not survey-grade entrance coordinates. Please check the exact point and current access on site.
 
 This is an independent visitor guide, not an official temple or government website. Confirm timings, availability, access and route conditions with official sources or locally before travel.
+
+
+## Map-only Girivalam tracker
+
+The dedicated URL is `https://myg-1107.github.io/Tiruvanamalai/girivalam/`. The page is intentionally map-only: the map occupies the viewport and uses compact controls rather than article content.
+
+1. The page requests location permission and loads the closed circuit from the public foot-routing network, following the clockwise waypoint order: Arunachaleswarar Temple / East Rajagopuram, Indra, Agni, Yama, Niruthi, Varuna, Adi Annamalai, Vayu, Kubera, Esanya, and back to the temple.
+2. The visitor's GPS position is projected onto the route geometry. The nearest point on the route becomes that visitor's personal start and finish marker.
+3. A walking connector is requested from the current location to that point. When the visitor is farther away than the public routing service should be asked to handle, the start button opens Google Maps walking directions instead.
+4. The visitor must reach the selected start point and tap the start control. GPS progress is then projected onto the clockwise route line. The walk can be paused and resumed.
+5. Completion is recognised only when the tracked progress is close to one full circuit and the GPS position returns to the same start marker.
+
+The progress counter uses the distance of the returned route geometry, which should be close to the traditional approximately 14 km circuit. The map deliberately does not claim a fixed exactly-14.00-km GPS route. Tracking needs a secure HTTPS page, browser location permission and a usable GPS signal. A phone's browser may suspend GPS when the page is backgrounded or the device enters battery-saving mode; keep the map open during the walk. Visitors should still follow local police, traffic and festival-diversion instructions.
+
+The route waypoints include public map positions; some are approximate and should be checked on the ground. The foot-routing service may return no route or a route that changes as map data changes. The page reports failure rather than substituting an invented route. For a high-traffic public launch, use a dedicated, monitored routing provider or a self-hosted routing engine.
+
+## Search engine crawling and SEO
+
+- `robots.txt` allows crawling and references the root sitemap.
+- `sitemap.xml` lists the homepage, dedicated `/girivalam/` URL and accommodation page using absolute canonical URLs.
+- The homepage and map page specify unique titles, descriptions, canonical URLs, index/follow directives and social metadata. The map page includes WebApplication structured data.
+- The homepage links directly to `/girivalam/`; the old `girivalam.html` address redirects to the new page and is marked noindex to avoid duplicate URLs.
+
+These are crawlability and indexing preparations, not a promise of Google indexing or ranking. Google Search Console ownership verification and sitemap submission must be completed by the site owner. URL Inspection should then be used to request indexing and check Google's rendered version. Search position is determined by Google's systems and cannot be guaranteed.
