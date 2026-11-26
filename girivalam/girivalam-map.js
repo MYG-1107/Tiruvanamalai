@@ -7,7 +7,7 @@
   "use strict";
 
   const MAP_CENTRE = [12.2388, 79.0525];
-  const MAP_MAX_ZOOM = 21;
+  const MAP_MAX_ZOOM = 23;
   const MAP_NATIVE_MAX_ZOOM = 19;
   const ADI_APPROACH_METRES = 600;
   const ADI_ARRIVAL_METRES = 90;
