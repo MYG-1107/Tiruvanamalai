@@ -12,7 +12,7 @@ A lightweight, static website hosted on GitHub Pages to help visitors explore th
 
 The home page asks the visitor's browser for location permission when it opens. The visitor can decline and still use the map. Location is held only in page memory; this site does not save it or send it to an application server.
 
-Walking distances are requested from the OpenStreetMap-based public foot-routing service. If that service is unavailable, the page displays a straight-line estimate and labels it as such. Distances are approximate and can vary with access points, diversions and routing data. Google Maps and Apple Maps links are provided for live navigation.
+The home page calculates straight-line distance estimates from the browser location and labels them clearly; these are not walking or road distances. Google Maps and Apple Maps links open walking navigation so visitors can check the current route distance and directions. The site does not call a shared public demo routing service for every visitor.
 
 ## Temple data
 
@@ -35,7 +35,6 @@ The Tiruvannamalai District Administration describes the road encircling Arunach
 
 - Map tiles and map data: [OpenStreetMap](https://www.openstreetmap.org/copyright)
 - Map rendering: [Leaflet](https://leafletjs.com/)
-- Walking route estimates: [OpenStreetMap routing service](https://routing.openstreetmap.de/)
 - Third-place name lookup: [Photon geocoder](https://photon.komoot.io/)
 - External navigation: Google Maps and Apple Maps
 
