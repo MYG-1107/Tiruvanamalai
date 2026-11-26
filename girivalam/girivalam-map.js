@@ -631,7 +631,7 @@
   }
 
   function toggleFullscreen() {
-    const target = byId("liveGirivalamMap");
+    const target = document.querySelector(".map-app");
     if (!target) return;
     if (!document.fullscreenElement) {
       target.requestFullscreen?.().then(() => state.map.invalidateSize()).catch(() => {});
