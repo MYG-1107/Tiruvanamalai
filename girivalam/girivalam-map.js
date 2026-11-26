@@ -516,6 +516,18 @@
   function updateAdiGuidance(projection) {
     if (state.adiAlong == null || !state.routeLength || !projection) return;
     const metresAhead = (state.adiAlong - projection.along + state.routeLength) % state.routeLength;
+
+    // Once the pilgrim has received the approach / arrival cue and moved past
+    // the shrine, replace the arrival message with a clear "passed" reminder.
+    if (state.adiCueStage >= 1 && state.adiCueStage < 3 &&
+        metresAhead >= state.routeLength - ADI_ARRIVAL_METRES) {
+      state.adiCueStage = 3;
+      const passedMessage = "Adi Annamalaiyar Temple is now behind you. If you have not visited, consider returning safely before continuing the Girivalam walk.";
+      setStatus(passedMessage);
+      speakGuidance("You have passed Adi Annamalaiyar Temple. If you have not visited, please consider returning safely before continuing.");
+      return;
+    }
+
     let stage = 0;
     if (metresAhead <= ADI_ARRIVAL_METRES) stage = 2;
     else if (metresAhead <= ADI_APPROACH_METRES) stage = 1;
