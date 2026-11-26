@@ -43,9 +43,7 @@ const TEMPLE_PLACES = [
 let visitMap = null;
 let userCoordinates = null;
 let userMarker = null;
-let routeLine = null;
 const templeMarkers = new Map();
-const routeCache = new Map();
 
 const toRadians = (value) => (value * Math.PI) / 180;
 
@@ -152,73 +150,23 @@ function focusPlace(placeId) {
   visitMap.setView([place.lat, place.lon], 16, { animate: true });
   const marker = templeMarkers.get(placeId);
   if (marker) marker.openPopup();
-  const route = routeCache.get(placeId);
-  if (route?.coordinates) drawWalkingRoute(route.coordinates);
 }
 
-function drawWalkingRoute(coordinates) {
-  if (!visitMap || !window.L || !Array.isArray(coordinates)) return;
-  if (routeLine) visitMap.removeLayer(routeLine);
-  const latLngs = coordinates.map(([lon, lat]) => [lat, lon]);
-  routeLine = L.polyline(latLngs, {
-    color: "#c27b3d",
-    weight: 5,
-    opacity: .88,
-    lineCap: "round",
-    lineJoin: "round"
-  }).addTo(visitMap);
-}
-
-async function fetchWalkingRoute(origin, destination) {
-  const url = `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=full&geometries=geojson&steps=false`;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 11000);
-  try {
-    const response = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`Walking router returned ${response.status}`);
-    const data = await response.json();
-    const route = data.routes && data.routes[0];
-    if (!route || !Number.isFinite(route.distance)) throw new Error("No walking route returned");
-    return {
-      km: route.distance / 1000,
-      coordinates: route.geometry?.coordinates || null,
-      source: "walking"
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function updateTempleDistances() {
-  for (const place of TEMPLE_PLACES) {
-    const element = document.querySelector(`[data-distance-for="${place.id}"]`);
-    if (!element || place.lat == null || place.lon == null) continue;
-    if (!userCoordinates) {
-      element.textContent = "Allow location access to calculate your distance.";
-      continue;
-    }
-    element.textContent = "Calculating walking distance…";
-  }
-
-  if (!userCoordinates) return;
-  const jobs = TEMPLE_PLACES.filter((place) => place.lat != null && place.lon != null);
-  await Promise.all(jobs.map(async (place) => {
+function updateTempleDistances() {
+  TEMPLE_PLACES.forEach((place) => {
     const element = document.querySelector(`[data-distance-for="${place.id}"]`);
     if (!element) return;
-    try {
-      const route = await fetchWalkingRoute(userCoordinates, { lat: place.lat, lon: place.lon });
-      routeCache.set(place.id, route);
-      element.textContent = `${formatKm(route.km)} · approximate walking route`;
-    } catch (error) {
-      const direct = haversineKm(userCoordinates, { lat: place.lat, lon: place.lon });
-      routeCache.set(place.id, { km: direct, coordinates: null, source: "straight-line" });
-      element.textContent = `${formatKm(direct)} · straight-line estimate`;
+    if (place.lat == null || place.lon == null) {
+      element.textContent = "Distance unavailable until the correct temple pin is confirmed.";
+      return;
     }
-  }));
-  const sivanagar = document.querySelector('[data-distance-for="sivanagar"]');
-  if (sivanagar && TEMPLE_PLACES.find((place) => place.id === "sivanagar")?.lat == null) {
-    sivanagar.textContent = "Distance unavailable until the correct temple pin is confirmed.";
-  }
+    if (!userCoordinates) {
+      element.textContent = "Allow location access to calculate your distance.";
+      return;
+    }
+    const directDistance = haversineKm(userCoordinates, { lat: place.lat, lon: place.lon });
+    element.textContent = `${formatKm(directDistance)} · straight-line estimate`;
+  });
 }
 
 function setLocationStatus(message) {
@@ -242,8 +190,8 @@ function locateUser() {
         ? Math.round(position.coords.accuracy)
         : null;
       setLocationStatus(accuracy && accuracy > 1000
-        ? "Location found, but accuracy is broad. Distances are estimates."
-        : "Your location is on the map. Distances are approximate and may vary with the route.");
+        ? "Location found, but accuracy is broad. Distances are straight-line estimates."
+        : "Your location is on the map. Distances are straight-line estimates; open a map app for walking directions.");
       if (visitMap && window.L) {
         if (userMarker) visitMap.removeLayer(userMarker);
         userMarker = L.circleMarker([userCoordinates.lat, userCoordinates.lon], {
@@ -256,7 +204,7 @@ function locateUser() {
         visitMap.fitBounds(bounds.pad(.18), { maxZoom: 14 });
       }
       renderTempleCards();
-      await updateTempleDistances();
+      updateTempleDistances();
     },
     (error) => {
       const messages = {
@@ -300,7 +248,7 @@ async function findSivanagarPin() {
     place.pinNote = "Candidate map pin found by place-name search. Please confirm this is the temple you intended.";
     addTempleMarker(place);
     renderTempleCards();
-    if (userCoordinates) await updateTempleDistances();
+    if (userCoordinates) updateTempleDistances();
   } catch (error) {
     // Keep the location unpinned rather than guessing.
   }
@@ -314,7 +262,7 @@ function initialiseHomeMap() {
     return;
   }
   visitMap = L.map(mapElement, { scrollWheelZoom: false }).setView(TIRUVANNAMALAI_CENTER, 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
   }).addTo(visitMap);
@@ -339,7 +287,7 @@ function initialiseGirivalamMap() {
     return;
   }
   const map = L.map(mapElement, { scrollWheelZoom: false }).setView([12.238, 79.046], 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
   }).addTo(map);
