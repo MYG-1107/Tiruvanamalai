@@ -95,7 +95,7 @@ function renderTempleCards() {
     const distanceText = !isPinned
       ? "Exact map pin not verified yet."
       : userCoordinates
-        ? "Calculating walking distance…"
+        ? "Calculating distance estimate…"
         : "Allow location access to calculate your distance.";
     const pinText = place.pinNote ? `<p class="pin-note">${place.pinNote}</p>` : "";
     const focusButton = isPinned
