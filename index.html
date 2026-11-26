@@ -75,10 +75,23 @@
           <div>
             <p class="eyebrow">YOUR FIRST STOPS</p>
             <h2>Temples to visit</h2>
-            <p class="section-lede">Allow location access to see an approximate direct distance from where you are. Select a temple to focus it on the map. Switch between street and satellite views, or open full screen for easier map reading.</p>
+            <p class="section-lede">Satellite imagery opens by default. Allow location access to see an approximate distance, select a temple to focus the map, or switch to the street layer when you need road labels.</p>
           </div>
           <span class="section-note">More temples will be added in future updates.</span>
         </div>
+
+        <aside class="adi-visit-banner" aria-label="Important temple to visit">
+          <div class="adi-visit-banner-mark" aria-hidden="true">A</div>
+          <div class="adi-visit-banner-copy">
+            <span class="adi-visit-kicker">IMPORTANT GIRIVALAM STOP · PLEASE DO NOT MISS</span>
+            <h3>Arulmigu Adhi Annamalaiyar Temple</h3>
+            <p>ஆதி அண்ணாமலையார் திருக்கோயில் · On the sacred Girivalam path at Adi Annamalai. Please set aside time to visit this important temple during your pilgrimage.</p>
+          </div>
+          <div class="adi-visit-links">
+            <a href="https://maps.apple.com/?daddr=Arulmigu+Adhi+Annamalaiyar+Temple%2C+Kirivalapathai%2C+Tiruvannamalai%2C+Tamil+Nadu+606604&dirflg=w" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Arulmigu+Adhi+Annamalaiyar+Temple%2C+Kirivalapathai%2C+Tiruvannamalai%2C+Tamil+Nadu+606604" target="_blank" rel="noopener noreferrer">Google Maps ↗</a>
+          </div>
+        </aside>
 
         <div class="explore-layout">
           <div class="map-card">
@@ -95,14 +108,14 @@
                 <button class="map-tool-button" id="homeMapCurrent" type="button">My location</button>
                 <button class="map-tool-button" id="homeMapFullscreen" type="button">Full screen</button>
               </div>
-              <p class="map-status" id="homeMapStatus" role="status" aria-live="polite">Map centred on the temple area. Choose Street map or Satellite from the map layers control.</p>
+              <p class="map-status" id="homeMapStatus" role="status" aria-live="polite">Satellite view is active. Use the map layers control to switch to a street map.</p>
             </div>
             <div class="map-legend">
               <span><i class="legend-dot user-dot"></i>Your location</span>
               <span><i class="legend-dot temple-dot"></i>Adi Annamalaiyar</span>
               <span><i class="legend-dot main-temple-dot"></i>Arunachaleswarar</span>
             </div>
-            <p class="map-attribution-note">Street and satellite layers · Map data © OpenStreetMap contributors · Satellite imagery © Esri.</p>
+            <p class="map-attribution-note">Satellite imagery and place labels © Esri · Street map © OpenStreetMap contributors. Apple Maps and Google Maps open as external navigation options.</p>
           </div>
           <div class="temple-list" id="templeCards" aria-live="polite">
             <article class="temple-card">
