@@ -1,128 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tiruvannamalai Girivalam Guide</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <div class="branding">
-          <span class="brand-title">Tiruvannamalai</span>
-          <span class="brand-subtitle">Pilgrim Guide</span>
-        </div>
-        <nav class="site-nav">
-          <a href="./index.html">Home</a>
-          <a class="active" href="./girivalam.html">Tiruvannamalai/Girivalam</a>
-          <a href="./accommodation.html">Accommodation</a>
-        </nav>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f3eb">
+  <meta name="description" content="Explore the Girivalam route around Arunachala hill in Tiruvannamalai. Learn about the 14 km clockwise pilgrimage and Ashta Lingam shrines.">
+  <title>Girivalam — The 14 km Sacred Walk | Tiruvannamalai</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script src="./script.js" defer></script>
+</head>
+<body data-page="girivalam">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html" aria-label="Tiruvannamalai home"><span class="brand-mark" aria-hidden="true">ॐ</span><span class="brand-copy"><strong>Tiruvannamalai</strong><small>A pilgrim's map</small></span></a>
+      <nav class="site-nav" aria-label="Main navigation"><a href="./index.html">Discover</a><a class="active" href="./girivalam.html" aria-current="page">Girivalam</a><a href="./accommodation.html">Stay guide</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container page-hero-inner">
+        <p class="eyebrow">GIRI PRADAKSHINA · ARUNACHALA</p>
+        <h1>Walk around the sacred hill.</h1>
+        <p>Girivalam is a devotional walk around Arunachala, traditionally completed clockwise with the hill on your right. The public road around the hill is approximately 14 km.</p>
+        <div class="hero-actions"><a class="button button-primary" href="https://www.google.com/maps/dir/?api=1&origin=Arunachaleswarar+Temple%2C+Tiruvannamalai&destination=Arunachaleswarar+Temple%2C+Tiruvannamalai&travelmode=walking" target="_blank" rel="noopener noreferrer">Open walking directions <span aria-hidden="true">↗</span></a><a class="button button-quiet" href="./index.html#temple-guide">Find nearby temples</a></div>
       </div>
-    </header>
+    </section>
 
-    <main>
-      <section class="hero narrow">
-        <div class="container">
-          <h1>Girivalam (Giri Pradakshina) Route</h1>
-          <p>
-            The Girivalam path is a sacred 14 km circumambulation of Arunachala
-            hill. Walk clockwise and pause at the shrines and holy spots along
-            the way.
-          </p>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container">
-          <h2>Key temples and places to visit</h2>
-          <div class="list-grid">
-            <div class="list-item">
-              <h3>Indra Lingam</h3>
-              <p>The eastern shrine marking the starting direction.</p>
-            </div>
-            <div class="list-item">
-              <h3>Agni Lingam</h3>
-              <p>The south-eastern shrine associated with the element of fire.</p>
-            </div>
-            <div class="list-item">
-              <h3>Yama Lingam</h3>
-              <p>The southern shrine reminding pilgrims of dharma and time.</p>
-            </div>
-            <div class="list-item">
-              <h3>Niruthi Lingam</h3>
-              <p>The south-western shrine, a traditional rest stop for devotees.</p>
-            </div>
-            <div class="list-item">
-              <h3>Varuna Lingam</h3>
-              <p>The western shrine linked to water and purification.</p>
-            </div>
-            <div class="list-item">
-              <h3>Vayu Lingam</h3>
-              <p>The north-western shrine representing the element of wind.</p>
-            </div>
-            <div class="list-item">
-              <h3>Kubera Lingam</h3>
-              <p>The northern shrine associated with prosperity and abundance.</p>
-            </div>
-            <div class="list-item">
-              <h3>Esanya (Ishanya) Lingam</h3>
-              <p>The north-eastern shrine that completes the circuit.</p>
-            </div>
-            <div class="list-item">
-              <h3>Virupaksha Cave</h3>
-              <p>A revered meditation cave connected to Sri Ramana Maharshi.</p>
-            </div>
-            <div class="list-item">
-              <h3>Ramana Maharshi Ashram</h3>
-              <p>Quiet satsang halls, meditation spaces, and a peaceful garden.</p>
-            </div>
-            <div class="list-item">
-              <h3>Sri Seshadri Swamigal Ashram</h3>
-              <p>A traditional stop for pilgrims seeking blessings and rest.</p>
-            </div>
-            <div class="list-item">
-              <h3>Skandashram</h3>
-              <p>Hilltop ashram with views of Arunachala and the temple town.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section muted">
-        <div class="container">
-          <h2>Tips for Girivalam</h2>
-          <ul class="tips">
-            <li>Carry water and light snacks, especially during daytime walks.</li>
-            <li>Wear comfortable footwear or walk barefoot as per your vow.</li>
-            <li>Plan for 3-5 hours depending on pace and stop duration.</li>
-            <li>Full moon days (Pournami) are especially significant.</li>
-          </ul>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
+    <section class="section route-section">
       <div class="container">
-        <h3>Sources</h3>
-        <ul class="source-list">
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Girivalam"
-              >Girivalam - Wikipedia</a
-            >
-          </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Arunachalesvara_Temple"
-              >Arunachaleswarar Temple - Wikipedia</a
-            >
-          </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Ramana_Maharshi"
-              >Sri Ramana Maharshi - Wikipedia</a
-            >
-          </li>
-        </ul>
+        <div class="section-heading">
+          <div><p class="eyebrow">THE PILGRIMAGE CIRCUIT</p><h2>Girivalam route map</h2><p class="section-lede">An orientation map of the hill and principal temple landmarks. Use the walking directions link for live, road-following navigation.</p></div>
+          <span class="route-distance-badge"><strong>~14 km</strong><small>traditional circuit</small></span>
+        </div>
+        <div class="route-map-card">
+          <div class="route-map-heading"><div><strong>Arunachala · Girivalam</strong><small>Clockwise pilgrimage orientation</small></div><span class="map-live"><i></i> Interactive map</span></div>
+          <div id="girivalamMap" class="map map-route" role="application" aria-label="Illustrative map of Girivalam around Arunachala hill"><div class="map-placeholder">Loading the map…</div></div>
+          <div class="map-caveat"><strong>Map note:</strong> The highlighted ring is an orientation illustration, not a surveyed GPS track. The 14 km figure is from the Tiruvannamalai District Administration. Use the Google Maps walking link above for current road routing and follow local signs and diversions.</div>
+        </div>
       </div>
-    </footer>
-  </body>
+    </section>
+
+    <section class="section muted-section">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">THE EIGHT DIRECTIONS</p><h2>Ashta Lingam temples</h2><p class="section-lede">These eight Shiva shrines are traditionally visited in sequence during the clockwise Girivalam.</p></div></div>
+        <div class="lingam-grid">
+          <article class="lingam-card"><span>01 · EAST</span><h3>Indra Lingam</h3><p>The eastern shrine and first of the traditional eight stops.</p><a href="https://www.google.com/maps/search/?api=1&query=Indra+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>02 · SOUTH-EAST</span><h3>Agni Lingam</h3><p>The shrine associated with the element of fire.</p><a href="https://www.google.com/maps/search/?api=1&query=Agni+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>03 · SOUTH</span><h3>Yama Lingam</h3><p>The southern shrine on the Girivalam road.</p><a href="https://www.google.com/maps/search/?api=1&query=Yama+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>04 · SOUTH-WEST</span><h3>Niruthi Lingam</h3><p>The south-western stop along the circuit.</p><a href="https://www.google.com/maps/search/?api=1&query=Niruthi+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>05 · WEST</span><h3>Varuna Lingam</h3><p>The western shrine associated with water.</p><a href="https://www.google.com/maps/search/?api=1&query=Varuna+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>06 · NORTH-WEST</span><h3>Vayu Lingam</h3><p>The north-western shrine associated with wind.</p><a href="https://www.google.com/maps/search/?api=1&query=Vayu+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>07 · NORTH</span><h3>Kubera Lingam</h3><p>The northern shrine associated with Kubera.</p><a href="https://www.google.com/maps/search/?api=1&query=Kubera+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card"><span>08 · NORTH-EAST</span><h3>Esanya Lingam</h3><p>The north-eastern shrine that completes the eight-direction sequence.</p><a href="https://www.google.com/maps/search/?api=1&query=Esanya+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container route-practical">
+        <div><p class="eyebrow">BEFORE YOU SET OUT</p><h2>Walk mindfully and safely.</h2><p class="section-lede">Many pilgrims complete Girivalam in a few hours, but time depends on pace, crowd conditions and the number of stops.</p></div>
+        <ul class="check-list"><li>Carry drinking water and take breaks when needed.</li><li>Prefer cooler hours and be prepared for night walking.</li><li>Keep the hill on your right and follow local traffic instructions.</li><li>Wear suitable footwear if the road surface or heat requires it.</li><li>On Pournami and festival days, expect large crowds and diversions.</li><li>Keep the path clean and respect the shrines and local residents.</li></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-inner">
+    <a class="brand brand-footer" href="./index.html"><span class="brand-mark" aria-hidden="true">ॐ</span><span class="brand-copy"><strong>Tiruvannamalai</strong><small>A pilgrim's map</small></span></a>
+    <p>An independent visitor guide. Please confirm route conditions and temple access locally.</p>
+    <div class="footer-links"><a href="https://tiruvannamalai.nic.in/girivalam/" target="_blank" rel="noopener noreferrer">Tiruvannamalai District Administration</a><a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></div>
+    <small class="copyright">© <span id="currentYear">2026</span> Tiruvannamalai Pilgrim Guide</small>
+  </div></footer>
+</body>
 </html>
