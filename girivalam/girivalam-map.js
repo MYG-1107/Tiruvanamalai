@@ -12,6 +12,7 @@
   const GPS_MAX_ACCURACY_METRES = 65;
   const OFF_ROUTE_METRES = 85;
   const START_RADIUS_METRES = 42;
+  const START_RADIUS_MAX_METRES = 73;
   const FINISH_RADIUS_METRES = 48;
   const MAX_PROGRESS_JUMP_METRES = 110;
   const ROUTE_STOPS = [
@@ -87,6 +88,13 @@
 
   function formatKm(metres) {
     return (Math.max(0, metres) / 1000).toFixed(1);
+  }
+
+  function startDistanceToleranceMetres() {
+    const accuracy = Number.isFinite(state.locationAccuracy)
+      ? Math.max(0, state.locationAccuracy)
+      : GPS_MAX_ACCURACY_METRES;
+    return Math.min(START_RADIUS_MAX_METRES, Math.max(START_RADIUS_METRES, accuracy + 8));
   }
 
   function makeBaseLayers() {
@@ -286,18 +294,13 @@
     if (el.total) el.total.textContent = `${formatKm(state.routeLength || EXPECTED_CIRCUIT_KM * 1000)} km`;
     const button = el.startButton;
     if (!button) return;
-    const currentProjection = state.location && state.routeReady
-      ? projectToCircuit(state.location)
-      : null;
-    const canStart = state.routeReady && state.startPoint &&
-      !state.tracking && !state.completed &&
-      state.location &&
-      (state.locationAccuracy || 0) <= GPS_MAX_ACCURACY_METRES &&
-      (state.walkStarted
-        ? currentProjection && currentProjection.distance <= OFF_ROUTE_METRES
-        : distanceMetres(state.location, state.startPoint) <= START_RADIUS_METRES);
-
-    button.disabled = !state.tracking && !state.completed && !canStart;
+    // Keep the control tappable once a start point is selected. The click handler
+    // explains what is missing (GPS accuracy / distance) instead of silently
+    // presenting a disabled button that appears broken.
+    const canRespond = state.tracking || (
+      state.routeReady && Boolean(state.startPoint) && Boolean(state.location)
+    );
+    button.disabled = !canRespond || state.completed;
     if (state.tracking) {
       button.setAttribute("aria-label", "Pause Girivalam walk");
       button.title = "Pause walk";
@@ -366,7 +369,7 @@
   async function drawWalkingConnector() {
     if (!state.location || !state.startPoint || state.connectorBusy) return;
     const airDistance = distanceMetres(state.location, state.startPoint);
-    if (airDistance < START_RADIUS_METRES) {
+    if (airDistance <= startDistanceToleranceMetres()) {
       clearConnector();
       return;
     }
@@ -422,7 +425,7 @@
     setStartPoint(closest);
 
     const gap = closest.distance;
-    if (gap <= START_RADIUS_METRES) {
+    if (gap <= startDistanceToleranceMetres()) {
       setStatus("You are at your start point");
     } else if (gap <= 45000) {
       setStatus("Follow the blue route to your start point");
@@ -437,19 +440,36 @@
   }
 
   function beginWalk() {
-    if (!state.startPoint || !state.location || !state.routeReady) return;
-    if (state.locationAccuracy > GPS_MAX_ACCURACY_METRES) {
-      setStatus("Waiting for a better GPS signal");
+    if (!state.routeReady) {
+      setStatus("The Girivalam route is still loading");
+      return;
+    }
+    if (!state.startPoint || !state.location) {
+      setStatus("Waiting for your GPS location");
+      requestCurrentLocation();
+      return;
+    }
+    if (!Number.isFinite(state.locationAccuracy) || state.locationAccuracy > GPS_MAX_ACCURACY_METRES) {
+      const accuracy = Number.isFinite(state.locationAccuracy)
+        ? Math.round(state.locationAccuracy)
+        : null;
+      setStatus(accuracy === null
+        ? "Waiting for a reliable GPS signal"
+        : `GPS accuracy is about ±${accuracy} m — move to an open area and try again`);
       return;
     }
 
     const projection = projectToCircuit(state.location);
-    if (!projection) return;
+    if (!projection) {
+      setStatus("Your position could not be matched to the walking route");
+      return;
+    }
 
     if (!state.walkStarted) {
       const gap = distanceMetres(state.location, state.startPoint);
-      if (gap > START_RADIUS_METRES) {
-        setStatus("Move closer to your marked start point");
+      const allowedDistance = startDistanceToleranceMetres();
+      if (gap > allowedDistance || projection.distance > allowedDistance) {
+        setStatus(`You are about ${Math.round(gap)} m from the S marker. Move within ${Math.round(allowedDistance)} m to start`);
         return;
       }
       state.walkedMetres = 0;
@@ -457,7 +477,7 @@
       state.walkStarted = true;
     } else {
       if (projection.distance > OFF_ROUTE_METRES) {
-        setStatus("Return to the marked Girivalam path");
+        setStatus("Return to the marked Girivalam path before resuming");
         return;
       }
       state.lastAlong = projection.along;
@@ -540,7 +560,7 @@
       setInitialStart(location);
     } else if (state.routeReady && state.startPoint) {
       const gap = distanceMetres(location, state.startPoint);
-      if (!state.walkStarted && gap <= START_RADIUS_METRES) {
+      if (!state.walkStarted && gap <= startDistanceToleranceMetres()) {
         clearConnector();
         setStatus("You are at your start point");
       }
@@ -560,22 +580,25 @@
     const messages = {
       1: "Location permission is needed to find your start point",
       2: "Your location is temporarily unavailable",
-      3: "GPS timed out — move to an open area and retry"
+      3: "GPS timed out — waiting for another location update"
     };
+    if (error.code === 1 && state.watchId !== null) {
+      navigator.geolocation.clearWatch(state.watchId);
+      state.watchId = null;
+    }
     setStatus(messages[error.code] || "Unable to read GPS location");
     setError(error.code === 1 ? "Allow location access in your browser settings, then tap the location button." : "");
   }
 
   function updateStartNavigationUrl() {
     if (!el.goToStart || !state.startPoint) return;
-    el.goToStart.onclick = () => {
-      if (state.location && distanceMetres(state.location, state.startPoint) > START_RADIUS_METRES) {
-        window.open(makeNavigationUrl(state.startPoint), "_blank", "noopener");
-      } else {
-        state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
-        state.startMarker?.openPopup();
-      }
-    };
+    const needsDirections = state.location &&
+      distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres();
+    el.goToStart.setAttribute(
+      "aria-label",
+      needsDirections ? "Open walking directions to your start point" : "Show your Girivalam start point"
+    );
+    el.goToStart.title = needsDirections ? "Navigate to start" : "Show start point";
   }
 
   function requestCurrentLocation() {
@@ -584,22 +607,23 @@
       setError("Open this map over HTTPS and use a browser with location support.");
       return;
     }
-    setStatus("Waiting for your location");
+    setStatus("Waiting for your GPS location");
     setError("");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        onPosition(position);
-        if (state.watchId == null) {
-          state.watchId = navigator.geolocation.watchPosition(
-            onPosition,
-            onPositionError,
-            { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 }
-          );
-        }
-      },
-      onPositionError,
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
-    );
+    if (state.watchId !== null) return;
+
+    try {
+      // Start the continuous watch immediately. Unlike a one-shot position
+      // request, a timeout does not leave the page without future GPS updates.
+      state.watchId = navigator.geolocation.watchPosition(
+        onPosition,
+        onPositionError,
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 25000 }
+      );
+    } catch (error) {
+      state.watchId = null;
+      setStatus("Unable to start GPS tracking");
+      setError("Check the browser's location permission and try again.");
+    }
   }
 
   async function loadCircuit() {
@@ -611,8 +635,11 @@
       drawCircuit(route);
       if (el.retryButton) el.retryButton.hidden = true;
       setError("");
-      if (state.location) setInitialStart(state.location);
-      setStatus(state.location ? "Nearest start point selected" : "Circuit ready — waiting for location");
+      if (state.location) {
+        setInitialStart(state.location);
+      } else {
+        setStatus("Circuit ready — waiting for location");
+      }
       updateProgressUi();
     } catch (error) {
       setStatus("The walking route could not be loaded");
@@ -657,9 +684,16 @@
       }
     });
     el.goToStart?.addEventListener("click", () => {
-      if (state.startPoint) {
-        state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
+      if (!state.startPoint) return;
+      const needsDirections = state.location &&
+        distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres();
+      if (needsDirections) {
+        const opened = window.open(makeNavigationUrl(state.startPoint), "_blank", "noopener");
+        if (!opened) setStatus("Allow pop-ups to open walking directions");
+        return;
       }
+      state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
+      state.startMarker?.openPopup();
     });
     byId("centreMap")?.addEventListener("click", centreOnUser);
     byId("fullscreenMap")?.addEventListener("click", toggleFullscreen);
