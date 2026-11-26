@@ -633,8 +633,6 @@ function initialiseGirivalamMap() {
   makeBaseLayers(girivalamMap);
   addGirivalamMarkers();
   fitGirivalamRoute();
-  L.control.scale({ imperial: false, position: "bottomleft", maxWidth: 120 }).addTo(girivalamMap);
-
   document.getElementById("loadGirivalamRoute")?.addEventListener("click", loadGirivalamRoadRoute);
   document.getElementById("fitGirivalamRoute")?.addEventListener("click", fitGirivalamRoute);
 
