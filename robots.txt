@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://myg-1107.github.io/Tiruvanamalai/sitemap.xml
