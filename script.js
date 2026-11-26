@@ -1,8 +1,6 @@
-/* Tiruvannamalai Pilgrim Guide
- * Browser-only location support. Coordinates and the visitor's location are
- * kept in memory for this page; there is no account or location database.
- */
+/* Tiruvannamalai Pilgrim Guide — map and location interactions */
 const TIRUVANNAMALAI_CENTER = [12.2388, 79.0525];
+const MAX_LOCAL_FIT_DISTANCE_KM = 35;
 
 const TEMPLE_PLACES = [
   {
@@ -14,7 +12,7 @@ const TEMPLE_PLACES = [
     query: "Arulmigu Adhi Annamalaiyar Temple, Kirivalapathai, Tiruvannamalai, Tamil Nadu 606604, India",
     lat: 12.2518,
     lon: 79.0402,
-    pinNote: "Approximate public map pin; confirm the entrance locally."
+    pinNote: "Approximate map pin; verify the entrance locally."
   },
   {
     id: "arunachaleswarar",
@@ -25,7 +23,7 @@ const TEMPLE_PLACES = [
     query: "Arulmigu Arunachaleswarar Temple, East Gopuram Street, Tiruvannamalai, Tamil Nadu 606601, India",
     lat: 12.23184,
     lon: 79.06683,
-    pinNote: "Temple map position from OpenStreetMap-based place data."
+    pinNote: "Map position based on OpenStreetMap-derived place data."
   },
   {
     id: "sivanagar",
@@ -36,31 +34,142 @@ const TEMPLE_PLACES = [
     query: "Sivanagar Temple, Tiruvannamalai, Tamil Nadu, India",
     lat: null,
     lon: null,
-    pinNote: "The exact temple identity and map pin could not be verified from available public map references."
+    pinNote: "Exact identity and map pin need confirmation."
   }
 ];
 
+// Shrine positions are based on public OpenStreetMap-derived place listings.
+// They are map pins for orientation; visitors should confirm entrances locally.
+const GIRIVALAM_STOPS = [
+  { id: "indra-lingam", number: "1", name: "Indira Lingam", direction: "East", lat: 12.22925, lon: 79.07039, note: "Traditionally the first of the eight Lingams." },
+  { id: "agni-lingam", number: "2", name: "Agni Lingam", direction: "South-East", lat: 12.2242, lon: 79.0590, note: "The south-eastern shrine, near Chengam Road." },
+  { id: "yama-lingam", number: "3", name: "Yama Lingam", direction: "South", lat: 12.22644, lon: 79.04440, note: "The southern shrine on the Girivalam circuit." },
+  { id: "niruthi-lingam", number: "4", name: "Niruthi Lingam", direction: "South-West", lat: 12.23466, lon: 79.03231, note: "The south-western shrine." },
+  { id: "varuna-lingam", number: "5", name: "Varuna Lingam", direction: "West", lat: 12.2494, lon: 79.0347, note: "The western shrine." },
+  { id: "vayu-lingam", number: "6", name: "Vayu Lingam", direction: "North-West", lat: 12.25764, lon: 79.04737, note: "The north-western shrine." },
+  { id: "kubera-lingam", number: "7", name: "Kubera Lingam", direction: "North", lat: 12.2552, lon: 79.06097, note: "The northern shrine." },
+  { id: "esanya-lingam", number: "8", name: "Esanya Lingam", direction: "North-East", lat: 12.245113, lon: 79.074095, note: "The north-eastern shrine and final Ashta Lingam stop." }
+];
+
+const ADI_ANNAMALAI_STOP = {
+  id: "adi-annamalai-stop",
+  name: "Adi Annamalaiyar Temple",
+  lat: 12.2518,
+  lon: 79.0402,
+  note: "A major temple on the Girivalam road."
+};
+
 let visitMap = null;
+let girivalamMap = null;
 let userCoordinates = null;
 let userMarker = null;
+let userAccuracyCircle = null;
+let girivalamRouteLayer = null;
 const templeMarkers = new Map();
+const girivalamMarkers = new Map();
 
 const toRadians = (value) => (value * Math.PI) / 180;
 
 function haversineKm(origin, destination) {
-  const earthRadiusKm = 6371;
+  const radius = 6371;
   const lat1 = toRadians(origin.lat);
   const lat2 = toRadians(destination.lat);
   const latDiff = toRadians(destination.lat - origin.lat);
   const lonDiff = toRadians(destination.lon - origin.lon);
   const a = Math.sin(latDiff / 2) ** 2 +
     Math.cos(lat1) * Math.cos(lat2) * Math.sin(lonDiff / 2) ** 2;
-  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function formatKm(distance) {
   if (!Number.isFinite(distance)) return "Distance unavailable";
-  return distance < 10 ? `${distance.toFixed(1)} km` : `${Math.round(distance)} km`;
+  return distance < 10 ? `${distance.toFixed(1)} km` : `${distance.toFixed(1)} km`;
+}
+
+function makeNumberedIcon(number, kind = "lingam") {
+  const label = String(number);
+  return L.divIcon({
+    className: "pilgrim-marker-shell",
+    html: `<span class="pilgrim-marker pilgrim-marker--${kind}"><span>${label}</span></span>`,
+    iconSize: [34, 42],
+    iconAnchor: [17, 39],
+    popupAnchor: [0, -36]
+  });
+}
+
+function makeBaseLayers(map) {
+  const osmStreet = L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
+    }
+  );
+
+  const esriStreet = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution: "Tiles &copy; Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community"
+    }
+  );
+
+  const imagery = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution: "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+    }
+  );
+
+  const imageryLabels = L.tileLayer(
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution: "Labels &copy; Esri"
+    }
+  );
+
+  const satellite = L.layerGroup([imagery, imageryLabels]);
+  osmStreet.addTo(map);
+
+  L.control.layers(
+    {
+      "OpenStreetMap": osmStreet,
+      "Esri street map": esriStreet,
+      "Satellite": satellite
+    },
+    null,
+    { position: "topright", collapsed: true }
+  ).addTo(map);
+
+  L.control.scale({ imperial: false, position: "bottomleft", maxWidth: 120 }).addTo(map);
+}
+function bindFullscreen(buttonId, mapElementId, map) {
+  const button = document.getElementById(buttonId);
+  const mapElement = document.getElementById(mapElementId);
+  if (!button || !mapElement) return;
+
+  button.addEventListener("click", async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await mapElement.requestFullscreen();
+        button.textContent = "Exit full screen";
+      } else {
+        await document.exitFullscreen();
+        button.textContent = "Full screen";
+      }
+      window.setTimeout(() => map.invalidateSize(), 250);
+    } catch (error) {
+      const status = document.getElementById("homeMapStatus") || document.getElementById("routeMapStatus");
+      if (status) status.textContent = "Full-screen mode is not available in this browser.";
+    }
+  });
+
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) button.textContent = "Full screen";
+    window.setTimeout(() => map.invalidateSize(), 200);
+  });
 }
 
 function placeDestination(place) {
@@ -95,7 +204,7 @@ function renderTempleCards() {
     const distanceText = !isPinned
       ? "Exact map pin not verified yet."
       : userCoordinates
-        ? "Calculating distance estimate…"
+        ? "Updating distance…"
         : "Allow location access to calculate your distance.";
     const pinText = place.pinNote ? `<p class="pin-note">${place.pinNote}</p>` : "";
     const focusButton = isPinned
@@ -119,20 +228,27 @@ function renderTempleCards() {
   }).join("");
 
   container.querySelectorAll("[data-focus-place]").forEach((button) => {
-    button.addEventListener("click", () => focusPlace(button.dataset.focusPlace));
+    button.addEventListener("click", () => focusTemple(button.dataset.focusPlace));
   });
+
+  updateTempleDistances();
 }
 
 function addTempleMarker(place) {
   if (!visitMap || !window.L || place.lat == null || place.lon == null) return;
-  const marker = L.circleMarker([place.lat, place.lon], {
-    radius: 8,
-    color: "#fffefa",
-    weight: 2,
-    fillColor: "#c27b3d",
-    fillOpacity: 1
+  if (templeMarkers.has(place.id)) return;
+
+  const kind = place.id === "arunachaleswarar" ? "main" : "temple";
+  const marker = L.marker([place.lat, place.lon], {
+    icon: makeNumberedIcon(place.number, kind),
+    title: place.name,
+    riseOnHover: true
   }).addTo(visitMap);
-  marker.bindPopup(`<strong>${place.name}</strong><br><span>${place.shortName}</span>`);
+
+  const links = directionUrls(place);
+  marker.bindPopup(
+    `<div class="map-popup"><strong>${place.name}</strong><p>${place.description}</p><a href="${links.google}" target="_blank" rel="noopener noreferrer">Walking directions ↗</a></div>`
+  );
   marker.on("click", () => highlightTempleCard(place.id));
   templeMarkers.set(place.id, marker);
 }
@@ -143,13 +259,12 @@ function highlightTempleCard(placeId) {
   });
 }
 
-function focusPlace(placeId) {
+function focusTemple(placeId) {
   const place = TEMPLE_PLACES.find((item) => item.id === placeId);
   if (!place || place.lat == null || place.lon == null || !visitMap) return;
   highlightTempleCard(placeId);
   visitMap.setView([place.lat, place.lon], 16, { animate: true });
-  const marker = templeMarkers.get(placeId);
-  if (marker) marker.openPopup();
+  templeMarkers.get(placeId)?.openPopup();
 }
 
 function updateTempleDistances() {
@@ -164,14 +279,33 @@ function updateTempleDistances() {
       element.textContent = "Allow location access to calculate your distance.";
       return;
     }
-    const directDistance = haversineKm(userCoordinates, { lat: place.lat, lon: place.lon });
-    element.textContent = `${formatKm(directDistance)} · straight-line estimate`;
+    const distance = haversineKm(userCoordinates, { lat: place.lat, lon: place.lon });
+    element.textContent = `${formatKm(distance)} · straight-line estimate`;
   });
 }
 
 function setLocationStatus(message) {
   const status = document.getElementById("locationStatus");
   if (status) status.textContent = message;
+  const mapStatus = document.getElementById("homeMapStatus");
+  if (mapStatus) mapStatus.textContent = message;
+}
+
+function focusUserOnMap() {
+  if (!userCoordinates || !visitMap) {
+    locateUser();
+    return;
+  }
+  visitMap.setView([userCoordinates.lat, userCoordinates.lon], 15, { animate: true });
+  userMarker?.openPopup();
+}
+
+function fitTempleArea() {
+  if (!visitMap) return;
+  const points = TEMPLE_PLACES
+    .filter((place) => place.lat != null && place.lon != null)
+    .map((place) => [place.lat, place.lon]);
+  if (points.length) visitMap.fitBounds(L.latLngBounds(points).pad(0.28), { maxZoom: 14 });
 }
 
 function locateUser() {
@@ -179,36 +313,63 @@ function locateUser() {
     setLocationStatus("Location is not supported by this browser. You can still explore the temple map.");
     return;
   }
+
   setLocationStatus("Requesting your location. Please allow access in your browser.");
   navigator.geolocation.getCurrentPosition(
-    async (position) => {
+    (position) => {
       userCoordinates = {
         lat: position.coords.latitude,
         lon: position.coords.longitude
       };
       const accuracy = Number.isFinite(position.coords.accuracy)
-        ? Math.round(position.coords.accuracy)
-        : null;
-      setLocationStatus(accuracy && accuracy > 1000
-        ? "Location found, but accuracy is broad. Distances are straight-line estimates."
-        : "Your location is on the map. Distances are straight-line estimates; open a map app for walking directions.");
+        ? Math.max(10, position.coords.accuracy)
+        : 50;
+
       if (visitMap && window.L) {
         if (userMarker) visitMap.removeLayer(userMarker);
+        if (userAccuracyCircle) visitMap.removeLayer(userAccuracyCircle);
+
+        userAccuracyCircle = L.circle([userCoordinates.lat, userCoordinates.lon], {
+          radius: Math.min(accuracy, 1500),
+          color: "#2678b6",
+          weight: 1,
+          opacity: 0.55,
+          fillColor: "#4d9bd3",
+          fillOpacity: 0.1
+        }).addTo(visitMap);
+
         userMarker = L.circleMarker([userCoordinates.lat, userCoordinates.lon], {
-          radius: 9, color: "#fff", weight: 3, fillColor: "#2678b6", fillOpacity: 1
-        }).addTo(visitMap).bindPopup("Your current location");
-        const bounds = L.latLngBounds([[userCoordinates.lat, userCoordinates.lon]]);
-        TEMPLE_PLACES.forEach((place) => {
-          if (place.lat != null && place.lon != null) bounds.extend([place.lat, place.lon]);
-        });
-        visitMap.fitBounds(bounds.pad(.18), { maxZoom: 14 });
+          radius: 8,
+          color: "#ffffff",
+          weight: 3,
+          fillColor: "#2678b6",
+          fillOpacity: 1
+        }).addTo(visitMap).bindPopup("<strong>Your current location</strong>");
       }
+
       renderTempleCards();
-      updateTempleDistances();
+      const distanceToTown = haversineKm(userCoordinates, {
+        lat: TIRUVANNAMALAI_CENTER[0],
+        lon: TIRUVANNAMALAI_CENTER[1]
+      });
+
+      if (distanceToTown <= MAX_LOCAL_FIT_DISTANCE_KM) {
+        if (visitMap && userMarker) {
+          const bounds = L.latLngBounds([[userCoordinates.lat, userCoordinates.lon]]);
+          TEMPLE_PLACES.forEach((place) => {
+            if (place.lat != null && place.lon != null) bounds.extend([place.lat, place.lon]);
+          });
+          visitMap.fitBounds(bounds.pad(0.18), { maxZoom: 15 });
+        }
+        setLocationStatus("Your location is shown with a blue dot. Temple distances are approximate direct distances.");
+      } else {
+        fitTempleArea();
+        setLocationStatus("Location found. The map stays focused on Tiruvannamalai; your temple distances are calculated from your current location.");
+      }
     },
     (error) => {
       const messages = {
-        1: "Location permission was not granted. Use the button to try again, or browse the map without location.",
+        1: "Location permission was not granted. You can still explore the map or try again.",
         2: "Your location could not be determined. Please try again in a place with a clearer GPS signal.",
         3: "The location request timed out. Please try again."
       };
@@ -221,116 +382,274 @@ function locateUser() {
 async function findSivanagarPin() {
   const place = TEMPLE_PLACES.find((item) => item.id === "sivanagar");
   if (!place) return;
+
   try {
     const endpoint = new URL("https://photon.komoot.io/api/");
     endpoint.searchParams.set("q", "Sivanagar Temple, Tiruvannamalai, Tamil Nadu");
     endpoint.searchParams.set("limit", "8");
     endpoint.searchParams.set("lat", String(TIRUVANNAMALAI_CENTER[0]));
     endpoint.searchParams.set("lon", String(TIRUVANNAMALAI_CENTER[1]));
+
     const response = await fetch(endpoint.toString(), { headers: { Accept: "application/json" } });
     if (!response.ok) return;
     const data = await response.json();
+
     const candidate = (data.features || []).find((feature) => {
       const coordinates = feature.geometry?.coordinates;
       const properties = feature.properties || {};
-      const label = Object.values(properties).join(" ").toLowerCase();
       if (!Array.isArray(coordinates) || coordinates.length < 2) return false;
       const [lon, lat] = coordinates;
       const inTown = lat > 12.18 && lat < 12.30 && lon > 79.00 && lon < 79.13;
       const placeName = String(properties.name || "").toLowerCase().replace(/[^a-z]/g, "");
-      const matchesName = placeName.includes("sivanagar");
-      return inTown && matchesName;
+      return inTown && placeName.includes("sivanagar");
     });
+
     if (!candidate) return;
     const [lon, lat] = candidate.geometry.coordinates;
     place.lat = lat;
     place.lon = lon;
-    place.pinNote = "Candidate map pin found by place-name search. Please confirm this is the temple you intended.";
+    place.pinNote = "Map-name match found. Please confirm this is the temple you intended.";
     addTempleMarker(place);
     renderTempleCards();
-    if (userCoordinates) updateTempleDistances();
   } catch (error) {
-    // Keep the location unpinned rather than guessing.
+    // Leave the temple unpinned instead of guessing its location.
   }
+}
+
+function addHomeMapControls() {
+  document.getElementById("homeMapFit")?.addEventListener("click", fitTempleArea);
+  document.getElementById("homeMapCurrent")?.addEventListener("click", focusUserOnMap);
 }
 
 function initialiseHomeMap() {
   const mapElement = document.getElementById("visitMap");
   if (!mapElement) return;
+
   if (!window.L) {
     mapElement.innerHTML = '<div class="map-placeholder">The interactive map could not load. Check your connection and reload the page.</div>';
     return;
   }
-  visitMap = L.map(mapElement, { scrollWheelZoom: false }).setView(TIRUVANNAMALAI_CENTER, 13);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
-  }).addTo(visitMap);
 
+  visitMap = L.map(mapElement, {
+    scrollWheelZoom: false,
+    zoomControl: true,
+    preferCanvas: true
+  }).setView(TIRUVANNAMALAI_CENTER, 14);
+
+  makeBaseLayers(visitMap);
   TEMPLE_PLACES.forEach(addTempleMarker);
+  fitTempleArea();
+  addHomeMapControls();
   renderTempleCards();
-  setTimeout(() => visitMap.invalidateSize(), 120);
+  bindFullscreen("homeMapFullscreen", "visitMap", visitMap);
 
   const locateButton = document.getElementById("locateButton");
   if (locateButton) locateButton.addEventListener("click", locateUser);
-  // Ask once on entry because the home page is designed around nearby places.
-  // Visitors can decline and continue using the map without sharing location.
+
+  window.setTimeout(() => visitMap.invalidateSize(), 150);
   locateUser();
   findSivanagarPin();
+}
+
+function setRouteStatus(message, state = "info") {
+  const status = document.getElementById("routeMapStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.state = state;
+}
+
+function makeGirivalamDirectionsUrl() {
+  const start = GIRIVALAM_STOPS[0];
+  const orderedWaypoints = [
+    GIRIVALAM_STOPS[1],
+    GIRIVALAM_STOPS[2],
+    GIRIVALAM_STOPS[3],
+    GIRIVALAM_STOPS[4],
+    ADI_ANNAMALAI_STOP,
+    GIRIVALAM_STOPS[5],
+    GIRIVALAM_STOPS[6],
+    GIRIVALAM_STOPS[7]
+  ];
+
+  const google = new URL("https://www.google.com/maps/dir/");
+  google.searchParams.set("api", "1");
+  google.searchParams.set("origin", `${start.lat},${start.lon}`);
+  google.searchParams.set("destination", `${start.lat},${start.lon}`);
+  google.searchParams.set("waypoints", orderedWaypoints.map((stop) => `${stop.lat},${stop.lon}`).join("|"));
+  google.searchParams.set("travelmode", "walking");
+  return google.toString();
+}
+
+function addGirivalamMarkers() {
+  GIRIVALAM_STOPS.forEach((stop) => {
+    const marker = L.marker([stop.lat, stop.lon], {
+      icon: makeNumberedIcon(stop.number, "lingam"),
+      title: stop.name,
+      riseOnHover: true
+    }).addTo(girivalamMap);
+
+    marker.bindPopup(
+      `<div class="map-popup"><strong>${stop.name}</strong><p>${stop.direction} · ${stop.note}</p><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.name + ", Tiruvannamalai, Tamil Nadu, India")}" target="_blank" rel="noopener noreferrer">Open place in Google Maps ↗</a></div>`
+    );
+    girivalamMarkers.set(stop.id, marker);
+  });
+
+  const adiMarker = L.marker([ADI_ANNAMALAI_STOP.lat, ADI_ANNAMALAI_STOP.lon], {
+    icon: makeNumberedIcon("A", "temple"),
+    title: ADI_ANNAMALAI_STOP.name,
+    riseOnHover: true
+  }).addTo(girivalamMap);
+  adiMarker.bindPopup(`<div class="map-popup"><strong>${ADI_ANNAMALAI_STOP.name}</strong><p>${ADI_ANNAMALAI_STOP.note}</p></div>`);
+  girivalamMarkers.set(ADI_ANNAMALAI_STOP.id, adiMarker);
+
+  const mainTemple = TEMPLE_PLACES.find((place) => place.id === "arunachaleswarar");
+  if (mainTemple) {
+    const mainMarker = L.marker([mainTemple.lat, mainTemple.lon], {
+      icon: makeNumberedIcon("T", "main"),
+      title: mainTemple.name,
+      riseOnHover: true
+    }).addTo(girivalamMap);
+    mainMarker.bindPopup(`<div class="map-popup"><strong>${mainTemple.name}</strong><p>Temple at the foot of Arunachala.</p></div>`);
+    girivalamMarkers.set(mainTemple.id, mainMarker);
+  }
+}
+
+function fitGirivalamRoute() {
+  if (!girivalamMap) return;
+  const points = [
+    ...GIRIVALAM_STOPS.map((stop) => [stop.lat, stop.lon]),
+    [ADI_ANNAMALAI_STOP.lat, ADI_ANNAMALAI_STOP.lon],
+    [12.23184, 79.06683]
+  ];
+  girivalamMap.fitBounds(L.latLngBounds(points).pad(0.16));
+}
+
+function focusGirivalamStop(stopId) {
+  if (!girivalamMap) return;
+  const marker = girivalamMarkers.get(stopId);
+  if (!marker) return;
+  girivalamMap.setView(marker.getLatLng(), 16, { animate: true });
+  marker.openPopup();
+}
+
+async function loadGirivalamRoadRoute() {
+  if (!girivalamMap) return;
+
+  const button = document.getElementById("loadGirivalamRoute");
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Loading road route…";
+  }
+  setRouteStatus("Requesting the road-following walking route from OpenStreetMap data…", "loading");
+
+  const orderedStops = [
+    GIRIVALAM_STOPS[0],
+    GIRIVALAM_STOPS[1],
+    GIRIVALAM_STOPS[2],
+    GIRIVALAM_STOPS[3],
+    GIRIVALAM_STOPS[4],
+    ADI_ANNAMALAI_STOP,
+    GIRIVALAM_STOPS[5],
+    GIRIVALAM_STOPS[6],
+    GIRIVALAM_STOPS[7],
+    GIRIVALAM_STOPS[0]
+  ];
+
+  const coordinates = orderedStops.map((stop) => `${stop.lon},${stop.lat}`).join(";");
+  const endpoint = `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${coordinates}?overview=full&geometries=geojson&steps=false&alternatives=false`;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 22000);
+
+  try {
+    const response = await fetch(endpoint, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" }
+    });
+    if (!response.ok) throw new Error(`Routing service returned ${response.status}`);
+
+    const data = await response.json();
+    if (data.code !== "Ok" || !data.routes?.[0]?.geometry?.coordinates?.length) {
+      throw new Error(data.message || "No road route was returned");
+    }
+
+    if (girivalamRouteLayer) girivalamMap.removeLayer(girivalamRouteLayer);
+    const latLngs = data.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+    const roadDistanceKm = data.routes[0].distance / 1000;
+
+    girivalamRouteLayer = L.layerGroup([
+      L.polyline(latLngs, {
+        color: "#fffefa",
+        weight: 10,
+        opacity: 0.95,
+        lineCap: "round",
+        lineJoin: "round"
+      }),
+      L.polyline(latLngs, {
+        color: "#c27b3d",
+        weight: 5,
+        opacity: 1,
+        lineCap: "round",
+        lineJoin: "round"
+      })
+    ]).addTo(girivalamMap);
+
+    setRouteStatus(
+      `Road-following route preview loaded · ${formatKm(roadDistanceKm)} · Public OpenStreetMap walking network. Check the live navigation before setting out.`,
+      "success"
+    );
+    fitGirivalamRoute();
+  } catch (error) {
+    const reason = error.name === "AbortError" ? "The route request timed out." : "The public route service is temporarily unavailable.";
+    setRouteStatus(
+      `${reason} The shrine pins remain available. Use Google Maps or Apple Maps for live walking directions.`,
+      "warning"
+    );
+  } finally {
+    window.clearTimeout(timeout);
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Reload road route";
+    }
+  }
 }
 
 function initialiseGirivalamMap() {
   const mapElement = document.getElementById("girivalamMap");
   if (!mapElement) return;
+
   if (!window.L) {
     mapElement.innerHTML = '<div class="map-placeholder">The interactive map could not load. Open the walking directions link above.</div>';
     return;
   }
-  const map = L.map(mapElement, { scrollWheelZoom: false }).setView([12.238, 79.046], 13);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
-  }).addTo(map);
 
-  // This hand-drawn corridor is intentionally labelled as illustrative. It is
-  // not used for turn-by-turn directions or for calculating the 14 km distance.
-  const indicativeLoop = [
-    [12.23184, 79.06683],
-    [12.2220, 79.0625],
-    [12.2135, 79.0520],
-    [12.2120, 79.0390],
-    [12.2180, 79.0275],
-    [12.2290, 79.0220],
-    [12.2410, 79.0230],
-    [12.2518, 79.0402],
-    [12.2550, 79.0510],
-    [12.2500, 79.0615],
-    [12.2415, 79.0685],
-    [12.23184, 79.06683]
-  ];
-  L.polyline(indicativeLoop, {
-    color: "#c27b3d", weight: 5, opacity: .9, dashArray: "9 9", lineJoin: "round"
-  }).addTo(map).bindPopup("Indicative Girivalam circuit — use live walking directions for the road route.");
+  girivalamMap = L.map(mapElement, {
+    scrollWheelZoom: false,
+    zoomControl: true,
+    preferCanvas: true
+  }).setView(TIRUVANNAMALAI_CENTER, 13);
 
-  L.circle([12.2395, 79.0450], {
-    radius: 1150, color: "#69836d", weight: 1, fillColor: "#8ca68b", fillOpacity: .13, dashArray: "4 6"
-  }).addTo(map).bindPopup("Arunachala hill · orientation marker");
+  makeBaseLayers(girivalamMap);
+  addGirivalamMarkers();
+  fitGirivalamRoute();
+  document.getElementById("loadGirivalamRoute")?.addEventListener("click", loadGirivalamRoadRoute);
+  document.getElementById("fitGirivalamRoute")?.addEventListener("click", fitGirivalamRoute);
 
-  L.circleMarker([12.23184, 79.06683], {
-    radius: 9, color: "#fffefa", weight: 2, fillColor: "#355b49", fillOpacity: 1
-  }).addTo(map).bindPopup("<strong>Arunachaleswarar Temple</strong><br>Traditional start near the East Rajagopuram.");
+  document.querySelectorAll("[data-route-focus]").forEach((button) => {
+    button.addEventListener("click", () => focusGirivalamStop(button.dataset.routeFocus));
+  });
 
-  L.circleMarker([12.2518, 79.0402], {
-    radius: 8, color: "#fffefa", weight: 2, fillColor: "#c27b3d", fillOpacity: 1
-  }).addTo(map).bindPopup("<strong>Adi Annamalaiyar Temple</strong><br>Temple on the Girivalam path.");
+  const googleLink = document.getElementById("googleGirivalamDirections");
+  if (googleLink) googleLink.href = makeGirivalamDirectionsUrl();
 
-  map.fitBounds(L.latLngBounds(indicativeLoop).pad(.12));
-  setTimeout(() => map.invalidateSize(), 120);
+  bindFullscreen("girivalamMapFullscreen", "girivalamMap", girivalamMap);
+  setRouteStatus("Map ready. Select Load road route to request the walking-path preview.", "info");
+  window.setTimeout(() => girivalamMap.invalidateSize(), 150);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const year = document.getElementById("currentYear");
   if (year) year.textContent = String(new Date().getFullYear());
+
   if (document.body.dataset.page === "home") initialiseHomeMap();
   if (document.body.dataset.page === "girivalam") initialiseGirivalamMap();
 });

@@ -26,7 +26,7 @@
         <p class="eyebrow">GIRI PRADAKSHINA · ARUNACHALA</p>
         <h1>Walk around the sacred hill.</h1>
         <p>Girivalam is a devotional walk around Arunachala, traditionally completed clockwise with the hill on your right. The public road around the hill is approximately 14 km.</p>
-        <div class="hero-actions"><a class="button button-primary" href="https://www.google.com/maps/dir/?api=1&origin=Arunachaleswarar+Temple%2C+Tiruvannamalai&destination=Arunachaleswarar+Temple%2C+Tiruvannamalai&waypoints=Indra+Lingam%2C+Tiruvannamalai%7CAgni+Lingam%2C+Tiruvannamalai%7CYama+Lingam%2C+Tiruvannamalai%7CNiruthi+Lingam%2C+Tiruvannamalai%7CVaruna+Lingam%2C+Tiruvannamalai%7CAdi+Annamalaiyar+Temple%2C+Tiruvannamalai%7CVayu+Lingam%2C+Tiruvannamalai%7CKubera+Lingam%2C+Tiruvannamalai%7CEsanya+Lingam%2C+Tiruvannamalai&travelmode=walking" target="_blank" rel="noopener noreferrer">Google Maps walking route <span aria-hidden="true">↗</span></a><a class="button button-quiet" href="https://maps.apple.com/?q=Girivalam+Path%2C+Arunachala%2C+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Open in Apple Maps ↗</a><a class="button button-quiet" href="./index.html#temple-guide">Find nearby temples</a></div>
+        <div class="hero-actions"><a class="button button-primary" id="googleGirivalamDirections" href="https://www.google.com/maps/dir/?api=1&destination=Girivalam+Path%2C+Tiruvannamalai&travelmode=walking" target="_blank" rel="noopener noreferrer">Google Maps walking route <span aria-hidden="true">↗</span></a><a class="button button-quiet" href="https://maps.apple.com/?q=Girivalam+Path%2C+Arunachala%2C+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Open in Apple Maps ↗</a><a class="button button-quiet" href="./index.html#temple-guide">Find nearby temples</a></div>
       </div>
     </section>
 
@@ -38,8 +38,22 @@
         </div>
         <div class="route-map-card">
           <div class="route-map-heading"><div><strong>Arunachala · Girivalam</strong><small>Clockwise pilgrimage orientation</small></div><span class="map-live"><i></i> Interactive map</span></div>
-          <div id="girivalamMap" class="map map-route" role="application" aria-label="Illustrative map of Girivalam around Arunachala hill"><div class="map-placeholder">Loading the map…</div></div>
-          <div class="map-caveat"><strong>Map note:</strong> The highlighted ring is an orientation illustration, not a surveyed GPS track. The 14 km figure is from the Tiruvannamalai District Administration. Use the Google Maps walking link above for current road routing and follow local signs and diversions.</div>
+          <div class="map-actionbar route-map-actions">
+            <div class="map-actionbar-buttons">
+              <button class="map-tool-button map-tool-button-primary" id="loadGirivalamRoute" type="button">Load road route</button>
+              <button class="map-tool-button" id="fitGirivalamRoute" type="button">Show full circuit</button>
+              <button class="map-tool-button" id="girivalamMapFullscreen" type="button">Full screen</button>
+            </div>
+            <p class="map-status" id="routeMapStatus" role="status" aria-live="polite">Preparing the walking route preview…</p>
+          </div>
+          <div id="girivalamMap" class="map map-route" role="application" aria-label="Interactive road map of Girivalam with the Ashta Lingam stops"><div class="map-placeholder">Loading the map…</div></div>
+          <div class="route-map-legend">
+            <span><i class="route-legend-number">1–8</i> Ashta Lingam shrines</span>
+            <span><i class="route-legend-temple">A</i> Adi Annamalaiyar Temple</span>
+            <span><i class="route-legend-main">T</i> Arunachaleswarar Temple</span>
+            <span><i class="route-legend-line"></i> Road route preview</span>
+          </div>
+          <div class="map-caveat"><strong>Route accuracy:</strong> The highlighted line is requested from the OpenStreetMap foot-routing network and follows mapped roads and paths between the shrine pins. It is a planning preview, not official turn-by-turn guidance. Road access, closures and festival diversions can change. Check Google Maps or Apple Maps before starting. Route service: FOSSGIS / OpenStreetMap. <a href="https://www.openstreetmap.org/">View or correct map data ↗</a></div>
         </div>
       </div>
     </section>
@@ -48,14 +62,14 @@
       <div class="container">
         <div class="section-heading"><div><p class="eyebrow">THE EIGHT DIRECTIONS</p><h2>Ashta Lingam temples</h2><p class="section-lede">These eight Shiva shrines are traditionally visited in sequence during the clockwise Girivalam.</p></div></div>
         <div class="lingam-grid">
-          <article class="lingam-card"><span>01 · EAST</span><h3>Indra Lingam</h3><p>The eastern shrine and first of the traditional eight stops.</p><a href="https://www.google.com/maps/search/?api=1&query=Indra+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>02 · SOUTH-EAST</span><h3>Agni Lingam</h3><p>The shrine associated with the element of fire.</p><a href="https://www.google.com/maps/search/?api=1&query=Agni+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>03 · SOUTH</span><h3>Yama Lingam</h3><p>The southern shrine on the Girivalam road.</p><a href="https://www.google.com/maps/search/?api=1&query=Yama+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>04 · SOUTH-WEST</span><h3>Niruthi Lingam</h3><p>The south-western stop along the circuit.</p><a href="https://www.google.com/maps/search/?api=1&query=Niruthi+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>05 · WEST</span><h3>Varuna Lingam</h3><p>The western shrine associated with water.</p><a href="https://www.google.com/maps/search/?api=1&query=Varuna+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>06 · NORTH-WEST</span><h3>Vayu Lingam</h3><p>The north-western shrine associated with wind.</p><a href="https://www.google.com/maps/search/?api=1&query=Vayu+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>07 · NORTH</span><h3>Kubera Lingam</h3><p>The northern shrine associated with Kubera.</p><a href="https://www.google.com/maps/search/?api=1&query=Kubera+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
-          <article class="lingam-card"><span>08 · NORTH-EAST</span><h3>Esanya Lingam</h3><p>The north-eastern shrine that completes the eight-direction sequence.</p><a href="https://www.google.com/maps/search/?api=1&query=Esanya+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Find on map ↗</a></article>
+          <article class="lingam-card" data-stop="indra-lingam"><span>01 · EAST</span><h3>Indra Lingam</h3><p>The eastern shrine and first of the traditional eight stops.</p><button class="text-action" type="button" data-route-focus="indra-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Indra+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="agni-lingam"><span>02 · SOUTH-EAST</span><h3>Agni Lingam</h3><p>The shrine associated with the element of fire.</p><button class="text-action" type="button" data-route-focus="agni-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Agni+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="yama-lingam"><span>03 · SOUTH</span><h3>Yama Lingam</h3><p>The southern shrine on the Girivalam road.</p><button class="text-action" type="button" data-route-focus="yama-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Yama+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="niruthi-lingam"><span>04 · SOUTH-WEST</span><h3>Niruthi Lingam</h3><p>The south-western stop along the circuit.</p><button class="text-action" type="button" data-route-focus="niruthi-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Niruthi+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="varuna-lingam"><span>05 · WEST</span><h3>Varuna Lingam</h3><p>The western shrine associated with water.</p><button class="text-action" type="button" data-route-focus="varuna-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Varuna+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="vayu-lingam"><span>06 · NORTH-WEST</span><h3>Vayu Lingam</h3><p>The north-western shrine associated with wind.</p><button class="text-action" type="button" data-route-focus="vayu-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Vayu+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="kubera-lingam"><span>07 · NORTH</span><h3>Kubera Lingam</h3><p>The northern shrine associated with Kubera.</p><button class="text-action" type="button" data-route-focus="kubera-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Kubera+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
+          <article class="lingam-card" data-stop="esanya-lingam"><span>08 · NORTH-EAST</span><h3>Esanya Lingam</h3><p>The north-eastern shrine that completes the eight-direction sequence.</p><button class="text-action" type="button" data-route-focus="esanya-lingam">Show on route map</button> <a href="https://www.google.com/maps/search/?api=1&query=Esanya+Lingam+Tiruvannamalai" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></article>
         </div>
       </div>
     </section>
