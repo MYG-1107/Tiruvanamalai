@@ -78,6 +78,6 @@ This is an independent visitor guide, not an official temple or government websi
 ## Latest tracker interaction fixes
 
 - The central Start / Pause / Resume control provides an on-screen reason when a walk cannot start instead of silently disabling the control after a start point is selected.
-- The walk-start distance check accounts for the GPS accuracy reported by the device, with a maximum approach tolerance of 85 m. A start still requires a usable fix of 65 m accuracy or better.
+- The walk-start distance check accounts for the GPS accuracy reported by the device, with a maximum approach tolerance of 73 m. A start still requires a usable fix of 65 m accuracy or better.
 - GPS position is watched continuously, and the start-navigation control performs one action per tap: external walking directions when the pilgrim is away, or map focus when nearby.
 - The route and GPS workflow should still be verified on a real phone outdoors. Browser GPS, public routing availability, map tiles, and actual walking progress are not fully reproducible in static code checks.
