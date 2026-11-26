@@ -266,3 +266,193 @@ button { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Map experience improvements */
+.map-actionbar {
+  padding: 13px 18px 12px;
+  border-top: 1px solid var(--line);
+  background: #fffefa;
+}
+.map-actionbar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+.map-tool-button {
+  min-height: 33px;
+  padding: 6px 12px;
+  border: 1px solid #ddd6c9;
+  border-radius: 999px;
+  background: #fffefa;
+  color: #465b4d;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 750;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.map-tool-button:hover {
+  background: #edf2eb;
+  border-color: #b9c9ba;
+  transform: translateY(-1px);
+}
+.map-tool-button:disabled {
+  opacity: .55;
+  cursor: wait;
+  transform: none;
+}
+.map-tool-button-primary {
+  color: #fffefa;
+  background: var(--green);
+  border-color: var(--green);
+}
+.map-tool-button-primary:hover {
+  color: #fffefa;
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+.map-status {
+  min-height: 17px;
+  margin: 9px 0 0;
+  color: #788078;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.map-status[data-state="success"] { color: #3f7251; }
+.map-status[data-state="warning"] { color: #94632f; }
+.map-status[data-state="loading"] { color: #667d9a; }
+.map-legend .main-temple-dot { background: var(--green); }
+
+.leaflet-container {
+  background: #e7e9e2;
+  outline: none;
+}
+.leaflet-control-zoom a {
+  color: #344d3d !important;
+}
+.leaflet-control-layers {
+  border: 1px solid rgba(60, 75, 62, .14) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 5px 18px rgba(32, 43, 34, .13) !important;
+  color: #37483c;
+  font-size: 11px;
+}
+.leaflet-control-layers-expanded {
+  padding: 9px 11px 8px !important;
+}
+.leaflet-control-layers label {
+  margin: 4px 0;
+  cursor: pointer;
+}
+.leaflet-control-scale-line {
+  border: 1px solid #627164 !important;
+  border-top: none !important;
+  color: #3e5142 !important;
+  background: rgba(255, 254, 250, .9) !important;
+  font-size: 9px !important;
+}
+.leaflet-control-attribution {
+  background: rgba(255, 254, 250, .88) !important;
+  font-size: 8px !important;
+}
+.leaflet-popup-content-wrapper {
+  border: 1px solid rgba(60, 75, 62, .12);
+  box-shadow: 0 9px 26px rgba(32, 43, 34, .14);
+}
+.map-popup { min-width: 155px; }
+.map-popup p {
+  margin: 5px 0 7px;
+  color: #6d766f;
+  font-size: 10px;
+}
+.map-popup a {
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 750;
+}
+.pilgrim-marker-shell {
+  background: transparent;
+  border: 0;
+}
+.pilgrim-marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fffefa;
+  border-radius: 50% 50% 50% 8px;
+  background: #c27b3d;
+  color: #fffefa;
+  box-shadow: 0 3px 9px rgba(39, 50, 41, .32);
+  transform: rotate(-45deg);
+}
+.pilgrim-marker::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 50%;
+}
+.pilgrim-marker > span {
+  z-index: 1;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  transform: rotate(45deg);
+}
+.pilgrim-marker--main {
+  background: #355b49;
+  width: 37px;
+  height: 37px;
+}
+.pilgrim-marker--temple {
+  background: #355b49;
+}
+.pilgrim-marker--lingam {
+  background: #c27b3d;
+}
+.route-map-card:fullscreen,
+.map-card:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fffefa;
+  display: flex;
+  flex-direction: column;
+}
+#visitMap:fullscreen,
+#girivalamMap:fullscreen {
+  width: 100vw;
+  height: 100vh !important;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+}
+#visitMap:fullscreen .leaflet-control-attribution,
+#girivalamMap:fullscreen .leaflet-control-attribution {
+  font-size: 9px !important;
+}
+.map-card:fullscreen #visitMap {
+  flex: 1;
+  min-height: 0;
+}
+.route-map-actions { padding-bottom: 14px; }
+.route-map-actions .map-actionbar-buttons { gap: 8px; }
+.map-legend { flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .map-actionbar { padding: 11px 13px; }
+  .map-tool-button { min-height: 35px; padding: 7px 10px; font-size: 10px; }
+  .map-status { font-size: 9px; }
+  .leaflet-control-layers {
+    max-width: 125px;
+    font-size: 10px;
+  }
+  .map-home { height: 430px; }
+  .map-route { height: 500px; }
+  #visitMap:fullscreen, #girivalamMap:fullscreen { height: 100vh !important; }
+}
