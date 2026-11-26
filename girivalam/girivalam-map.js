@@ -1,6 +1,7 @@
 /* Live Girivalam map-only GPS experience.
  * Route shape: public OpenStreetMap foot-routing service.
- * Live position: browser geolocation only; no location is uploaded or stored.
+ * Live GPS progress is local. The current coordinate is sent to the public
+ * foot-routing endpoint only when requesting the walking connector to start.
  */
 (() => {
   "use strict";
