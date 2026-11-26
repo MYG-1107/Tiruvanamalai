@@ -34,7 +34,7 @@ The dedicated URL is `https://myg-1107.github.io/Tiruvanamalai/girivalam/`. The 
 
 The closed clockwise route is requested from the OpenStreetMap foot-routing network through the FOSSGIS OSRM-compatible endpoint. Waypoints are passed in this order: Arunachaleswarar Temple / East Rajagopuram, Indra, Agni, Yama, Niruthi, Varuna, Adi Annamalai, Vayu, Kubera, Esanya, then back to the temple. The route is checked for a plausible circuit length before it is drawn. If the public route service fails or returns an implausible loop, the page does not draw a guessed circle and offers a retry.
 
-The visitor's GPS position is projected onto the returned route geometry. The nearest point becomes that visitor's personal start / finish marker. A road-following connector is requested from the public foot-routing service when the visitor is within 45 km; for longer approaches the map opens Google Maps walking directions. After the nearest start point is marked, the Start control remains tappable and explains whether the pilgrim needs to move closer or wait for a more accurate GPS fix. The distance tolerance adapts to the reported GPS accuracy (42–73 m), while starting and active progress still require GPS accuracy of 65 m or better. Once started, progress is tracked along the clockwise path; the walk can be paused and resumed. Completion is recognised only when tracked progress is close to a full route and the GPS position returns to the same start marker.
+The visitor's GPS position is projected onto the returned route geometry. The nearest point becomes that visitor's personal start / finish marker. A road-following connector is requested from the public foot-routing service when the visitor is within 45 km; for longer approaches the map opens Apple Maps walking directions by default. The selected start marker and temple markers also provide both Apple Maps and Google Maps links. After the nearest start point is marked, the Start control remains tappable and explains whether the pilgrim needs to move closer or wait for a more accurate GPS fix. The distance tolerance adapts to the reported GPS accuracy (42–73 m), while starting and active progress still require GPS accuracy of 65 m or better. Once started, progress is tracked along the clockwise path; the walk can be paused and resumed. Completion is recognised only when tracked progress is close to a full route and the GPS position returns to the same start marker.
 
 The route distance shown is calculated from the returned walking-road geometry. It should be close to the traditional approximately 14 km, but it is not hard-coded to exactly 14.00 km. Some shrine coordinates are approximate public map positions and must be checked on the ground. The path is a planning aid, not an official surveyed track, emergency navigation or a guarantee that all roads are currently open. Follow local police, traffic and festival-diversion instructions.
 
@@ -42,12 +42,14 @@ Tracking requires HTTPS, browser location permission and a usable GPS signal. Th
 
 ## Map data, layers and services
 
-- Street map and shrine pin data: [OpenStreetMap](https://www.openstreetmap.org/copyright)
+- **Default satellite imagery:** [Esri World Imagery](https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer), with an Esri place-label overlay. The service publishes cached imagery through zoom level 23; the map uses these native zoom levels instead of stopping at zoom 19.
+- **Street fallback and reference layer:** [OpenStreetMap](https://www.openstreetmap.org/copyright); Esri street map is also available in the homepage layer selector. If satellite tiles repeatedly fail, the map falls back to a street layer and displays a message rather than leaving the visitor with a broken map.
 - Map rendering: [Leaflet](https://leafletjs.com/)
-- Alternative street and satellite imagery: [Esri World Street Map / World Imagery](https://www.arcgis.com/)
 - Road route preview: [OpenStreetMap foot-routing service](https://routing.openstreetmap.de/)
 - Third-place name lookup: [Photon geocoder](https://photon.komoot.io/)
-- External navigation: Google Maps and Apple Maps
+- External walking navigation: [Apple Maps](https://maps.apple.com/) and [Google Maps](https://maps.google.com/)
+
+The embedded satellite base layer is Esri World Imagery, not Apple-owned imagery. Apple Maps is offered for external walking directions. To embed Apple's own satellite or hybrid basemap inside the website, enable [MapKit JS](https://developer.apple.com/documentation/mapkitjs) with a domain-restricted Maps token from the Apple Developer account; the site currently has no such token. The implementation does not use undocumented Apple tile URLs.
 
 The site uses public map services with their own usage policies and availability limits. It does not require a Google Maps API key. The website does not store visitor location, but the GPS connector coordinates are sent to the public foot-routing service when a connector is requested.
 
@@ -75,9 +77,16 @@ Shrine coordinates are public map pins, not survey-grade entrance coordinates. P
 
 This is an independent visitor guide, not an official temple or government website. Confirm timings, availability, access and route conditions with official sources or locally before travel.
 
+## Latest map and temple guidance updates
+
+- Satellite imagery is the default view on the homepage and the live Girivalam map. The imagery layer uses Esri's published native zoom levels; the street layers scale their last native tiles at higher zooms, and a repeated satellite tile failure triggers a street-map fallback.
+- Adi Annamalaiyar Temple is featured as the first important temple card, with a highlighted map marker, Tamil and English popup text, and direct Apple Maps / Google Maps links.
+- During the clockwise GPS walk, the tracker calculates the Adi Annamalaiyar waypoint along the returned route and shows an approach alert before arrival. The Voice Guidance control can speak the prompt; the visual message remains available when voice guidance is off or unsupported.
+- The newest Apple Maps India release (November 2026) is used as a design reference for bilingual place information and clearer landmark-led guidance. The website does not pretend to embed Apple's imagery; that needs a valid MapKit JS token.
+
 ## Latest tracker interaction fixes
 
-- The central Start / Pause / Resume control provides an on-screen reason when a walk cannot start instead of silently disabling the control after a start point is selected.
+- The central Start / Pause / Resume control provides an on-screen reason when a walk cannot start instead of silently disabling the control after a start point has been selected.
 - The walk-start distance check accounts for the GPS accuracy reported by the device, with a maximum approach tolerance of 73 m. A start still requires a usable fix of 65 m accuracy or better.
 - GPS position is watched continuously, and the start-navigation control performs one action per tap: external walking directions when the pilgrim is away, or map focus when nearby.
 - The route and GPS workflow should still be verified on a real phone outdoors. Browser GPS, public routing availability, map tiles, and actual walking progress are not fully reproducible in static code checks.
