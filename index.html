@@ -1,133 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tiruvannamalai Temple Pilgrim Guide</title>
-    <link rel="stylesheet" href="./styles.css" />
-    <script src="./script.js" defer></script>
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <div class="branding">
-          <span class="brand-title">Tiruvannamalai</span>
-          <span class="brand-subtitle">Pilgrim Guide</span>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f3eb">
+  <meta name="description" content="A practical pilgrim guide to Tiruvannamalai, Arunachaleswarar Temple, Adhi Annamalaiyar Temple and the sacred 14 km Girivalam around Arunachala.">
+  <title>Tiruvannamalai — A Pilgrim's Map</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script src="./script.js" defer></script>
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html" aria-label="Tiruvannamalai home">
+        <span class="brand-mark" aria-hidden="true">ॐ</span>
+        <span class="brand-copy"><strong>Tiruvannamalai</strong><small>A pilgrim's map</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a class="active" href="./index.html" aria-current="page">Discover</a>
+        <a href="./girivalam.html">Girivalam</a>
+        <a href="./accommodation.html">Stay guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">ARUNACHALA · TIRUVANNAMALAI · TAMIL NADU</p>
+          <h1>Let every step lead you closer to <em>Arunachala.</em></h1>
+          <p class="hero-lede">A simple guide to the sacred temples and the Girivalam path. Find the important places around you, see their distance on the map, and open walking directions when you are ready.</p>
+          <div class="hero-actions">
+            <button class="button button-primary" id="locateButton" type="button">
+              <span aria-hidden="true">⌖</span> Use my current location
+            </button>
+            <a class="button button-quiet" href="./girivalam.html">Explore the 14 km Girivalam <span aria-hidden="true">→</span></a>
+          </div>
+          <p class="location-status" id="locationStatus" role="status" aria-live="polite">Your browser will ask permission before sharing your location.</p>
         </div>
-        <nav class="site-nav">
-          <a class="active" href="./index.html">Home</a>
-          <a href="./girivalam.html">Tiruvannamalai/Girivalam</a>
-          <a href="./accommodation.html">Accommodation</a>
-        </nav>
+        <div class="hero-art" aria-label="Illustration of Arunachala hill at sunrise" role="img">
+          <div class="sun"></div>
+          <div class="hill hill-back"></div>
+          <div class="hill hill-front"></div>
+          <div class="temple-silhouette"><span></span><span></span><span></span><i></i></div>
+          <div class="art-caption"><span>அருணாசலம்</span><small>The sacred hill</small></div>
+        </div>
       </div>
-    </header>
+    </section>
 
-    <main>
-      <section class="hero">
-        <div class="container">
-          <h1>Tiruvannamalai (Tiruvanamalai) Temple Pilgrim Guide</h1>
-          <p>
-            Plan your visit to the sacred Arunachaleswarar Temple and the
-            surrounding pilgrimage circuit with practical information, distance
-            guidance, and stay options.
-          </p>
-        </div>
-      </section>
+    <section class="intro-strip">
+      <div class="container intro-strip-inner">
+        <div><span class="strip-number">01</span><span><strong>Find sacred places</strong><small>Three key temple stops to begin with</small></span></div>
+        <div><span class="strip-number">02</span><span><strong>Know your distance</strong><small>From your current location</small></span></div>
+        <div><span class="strip-number">03</span><span><strong>Walk Girivalam</strong><small>Around 14 km around Arunachala</small></span></div>
+      </div>
+    </section>
 
-      <section class="section">
-        <div class="container">
-          <h2>Find your distance to Tiruvannamalai</h2>
-          <p>
-            Choose a city or use your current location to see the straight-line
-            distance to Tiruvannamalai.
-          </p>
-          <div class="distance-card">
-            <label for="originSelect">Select your starting location</label>
-            <select id="originSelect">
-              <option value="" selected disabled>Select a city</option>
-              <option data-lat="13.0827" data-lon="80.2707">Chennai</option>
-              <option data-lat="12.9716" data-lon="77.5946">Bengaluru</option>
-              <option data-lat="11.0168" data-lon="76.9558">Coimbatore</option>
-              <option data-lat="9.9252" data-lon="78.1198">Madurai</option>
-              <option data-lat="10.7905" data-lon="78.7047">Tiruchirappalli</option>
-              <option data-lat="11.9416" data-lon="79.8083">Puducherry</option>
-              <option data-lat="17.3850" data-lon="78.4867">Hyderabad</option>
-              <option data-lat="19.0760" data-lon="72.8777">Mumbai</option>
-              <option data-lat="28.6139" data-lon="77.2090">New Delhi</option>
-            </select>
-            <button id="geoButton" type="button">Use my current location</button>
-            <p id="distanceResult" class="distance-result" aria-live="polite">
-              Select a location to see the distance.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section muted">
-        <div class="container">
-          <h2>Pilgrim essentials</h2>
-          <div class="grid">
-            <div class="card">
-              <h3>Temple visit</h3>
-              <p>
-                Start early to avoid crowds, dress modestly, and keep enough
-                time for darshan and the inner prakaram.
-              </p>
-            </div>
-            <div class="card">
-              <h3>Girivalam guidance</h3>
-              <p>
-                The 14 km parikrama path circles Arunachala hill and is lined
-                with shrines, water points, and rest stops.
-              </p>
-            </div>
-            <div class="card">
-              <h3>Travel planning</h3>
-              <p>
-                Tiruvannamalai is well connected by road from Chennai, Bengaluru,
-                and nearby Tamil Nadu cities.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container">
-          <h2>Quick links</h2>
-          <div class="grid">
-            <a class="card link-card" href="./girivalam.html">
-              <h3>Girivalam route</h3>
-              <p>Temples and places to visit on the circumambulation path.</p>
-            </a>
-            <a class="card link-card" href="./accommodation.html">
-              <h3>Accommodation</h3>
-              <p>Stay options, guest houses, and pilgrim-friendly lodging.</p>
-            </a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
+    <section class="section discover-section" id="temple-guide">
       <div class="container">
-        <h3>Sources</h3>
-        <ul class="source-list">
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Arunachalesvara_Temple"
-              >Arunachaleswarar Temple - Wikipedia</a
-            >
-          </li>
-          <li>
-            <a href="https://www.openstreetmap.org/#map=13/12.2253/79.0747"
-              >Tiruvannamalai location - OpenStreetMap</a
-            >
-          </li>
-        </ul>
-        <p class="footer-note">
-          Distances shown are approximate straight-line distances for planning.
-        </p>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">YOUR FIRST STOPS</p>
+            <h2>Temples to visit</h2>
+            <p class="section-lede">Allow location access to see an approximate direct distance from where you are. Select a temple to focus it on the map; use a map app for walking directions.</p>
+          </div>
+          <span class="section-note">More temples will be added in future updates.</span>
+        </div>
+
+        <div class="explore-layout">
+          <div class="map-card">
+            <div class="map-card-heading">
+              <div><strong>Explore the area</strong><small>Live map · Tiruvannamalai</small></div>
+              <span class="map-live"><i></i> Interactive</span>
+            </div>
+            <div id="visitMap" class="map map-home" role="application" aria-label="Interactive map of Tiruvannamalai temples">
+              <div class="map-placeholder">Loading the map…</div>
+            </div>
+            <div class="map-legend">
+              <span><i class="legend-dot user-dot"></i>Your location</span>
+              <span><i class="legend-dot temple-dot"></i>Temple</span>
+            </div>
+            <p class="map-attribution-note">Map data © OpenStreetMap contributors. Directions open in Google Maps or Apple Maps.</p>
+          </div>
+          <div class="temple-list" id="templeCards" aria-live="polite">
+            <article class="temple-card">
+              <span class="temple-index">01</span>
+              <div><h3>Arulmigu Adhi Annamalaiyar Temple</h3><p>On the sacred Girivalam path, at Adi Annamalai.</p><p class="temple-distance">Enable location to calculate an approximate direct distance.</p></div>
+            </article>
+            <article class="temple-card">
+              <span class="temple-index">02</span>
+              <div><h3>Arulmigu Arunachaleswarar Temple</h3><p>The great Annamalaiyar temple at the foot of Arunachala.</p><p class="temple-distance">Enable location to calculate an approximate direct distance.</p></div>
+            </article>
+            <article class="temple-card temple-card-pending">
+              <span class="temple-index">03</span>
+              <div><h3>Sivanagar Temple</h3><p>Included as requested. Its exact map pin needs confirmation before a distance can be shown.</p><p class="temple-distance">Location to be verified.</p></div>
+            </article>
+          </div>
+        </div>
+        <p class="privacy-note"><span aria-hidden="true">⌖</span> Your location is used only in this page to estimate distances and show your map position. It is not saved by this website. Distances are straight-line estimates, not walking distances.</p>
       </div>
-    </footer>
-  </body>
+    </section>
+
+    <section class="girivalam-feature">
+      <div class="container girivalam-feature-inner">
+        <div class="feature-copy">
+          <p class="eyebrow eyebrow-light">THE SACRED WALK</p>
+          <h2>One hill. One circle. A journey of devotion.</h2>
+          <p>Girivalam — also called Giri Pradakshina — is the traditional walk around Arunachala. The road is about 14 kilometres long. Pilgrims traditionally walk clockwise, keeping the hill on their right.</p>
+          <a class="button button-light" href="./girivalam.html">View Girivalam guide <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="feature-stat"><strong>~14<span> km</span></strong><small>around Arunachala hill</small><div class="stat-divider"></div><strong>8</strong><small>Ashta Lingam shrines along the way</small></div>
+      </div>
+    </section>
+
+    <section class="section practical-section">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">PLAN WITH CARE</p><h2>A few things to keep in mind</h2></div>
+        </div>
+        <div class="practical-grid">
+          <article class="practical-item"><span>01</span><h3>Start at your pace</h3><p>Give yourself enough time for temple visits, prayers and rest. Festival days can be especially busy.</p></article>
+          <article class="practical-item"><span>02</span><h3>Carry water</h3><p>Keep drinking water, comfortable clothing and a charged phone with you during the walk.</p></article>
+          <article class="practical-item"><span>03</span><h3>Follow local guidance</h3><p>Road conditions, diversions and access may change. Follow signs, police directions and temple notices.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a class="brand brand-footer" href="./index.html"><span class="brand-mark" aria-hidden="true">ॐ</span><span class="brand-copy"><strong>Tiruvannamalai</strong><small>A pilgrim's map</small></span></a>
+      <p>An independent visitor guide. Please confirm temple access, timings and local route conditions before travelling.</p>
+      <div class="footer-links"><a href="https://tiruvannamalai.nic.in/girivalam/" target="_blank" rel="noopener noreferrer">District Girivalam information</a><a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></div>
+      <small class="copyright">© <span id="currentYear">2026</span> Tiruvannamalai Pilgrim Guide</small>
+    </div>
+  </footer>
+</body>
 </html>
