@@ -46,6 +46,7 @@
     lastAlong: null,
     walkedMetres: 0,
     tracking: false,
+    walkStarted: false,
     completed: false,
     lastUiUpdate: 0,
     lastRouteRequest: 0,
@@ -283,16 +284,21 @@
     if (el.total) el.total.textContent = `${formatKm(state.routeLength || EXPECTED_CIRCUIT_KM * 1000)} km`;
     const button = el.startButton;
     if (!button) return;
+    const currentProjection = state.location && state.routeReady
+      ? projectToCircuit(state.location)
+      : null;
     const canStart = state.routeReady && state.startPoint &&
       !state.tracking && !state.completed &&
       state.location &&
-      distanceMetres(state.location, state.startPoint) <= START_RADIUS_METRES &&
-      (state.locationAccuracy || 0) <= GPS_MAX_ACCURACY_METRES;
+      (state.locationAccuracy || 0) <= GPS_MAX_ACCURACY_METRES &&
+      (state.walkStarted
+        ? currentProjection && currentProjection.distance <= OFF_ROUTE_METRES
+        : distanceMetres(state.location, state.startPoint) <= START_RADIUS_METRES);
 
     button.disabled = !state.tracking && !state.completed && !canStart;
     if (state.tracking) {
-      button.setAttribute("aria-label", "End Girivalam walk");
-      button.title = "End walk";
+      button.setAttribute("aria-label", "Pause Girivalam walk");
+      button.title = "Pause walk";
       button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
     } else if (state.completed) {
       button.setAttribute("aria-label", "Girivalam completed");
@@ -300,9 +306,11 @@
       button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
       button.disabled = true;
     } else {
-      button.setAttribute("aria-label", "Start Girivalam");
-      button.title = "Start Girivalam";
-      button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
+      button.setAttribute("aria-label", state.walkStarted ? "Resume Girivalam walk" : "Start Girivalam");
+      button.title = state.walkStarted ? "Resume walk" : "Start Girivalam";
+      button.innerHTML = state.walkStarted
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14m8-14v14"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
     }
   }
 
@@ -424,15 +432,33 @@
 
   function beginWalk() {
     if (!state.startPoint || !state.location || !state.routeReady) return;
-    const gap = distanceMetres(state.location, state.startPoint);
-    if (gap > START_RADIUS_METRES || state.locationAccuracy > GPS_MAX_ACCURACY_METRES) {
-      setStatus("Move closer to your marked start point");
+    if (state.locationAccuracy > GPS_MAX_ACCURACY_METRES) {
+      setStatus("Waiting for a better GPS signal");
       return;
     }
+
+    const projection = projectToCircuit(state.location);
+    if (!projection) return;
+
+    if (!state.walkStarted) {
+      const gap = distanceMetres(state.location, state.startPoint);
+      if (gap > START_RADIUS_METRES) {
+        setStatus("Move closer to your marked start point");
+        return;
+      }
+      state.walkedMetres = 0;
+      state.lastAlong = state.startAlong;
+      state.walkStarted = true;
+    } else {
+      if (projection.distance > OFF_ROUTE_METRES) {
+        setStatus("Return to the marked Girivalam path");
+        return;
+      }
+      state.lastAlong = projection.along;
+    }
+
     state.tracking = true;
     state.completed = false;
-    state.walkedMetres = 0;
-    state.lastAlong = state.startAlong;
     clearConnector();
     setStatus("Girivalam in progress");
     updateProgressUi();
@@ -507,7 +533,7 @@
       setInitialStart(location);
     } else if (state.routeReady && state.startPoint) {
       const gap = distanceMetres(location, state.startPoint);
-      if (gap <= START_RADIUS_METRES) {
+      if (!state.walkStarted && gap <= START_RADIUS_METRES) {
         clearConnector();
         setStatus("You are at your start point");
       }
@@ -572,11 +598,8 @@
   async function loadCircuit() {
     setStatus("Loading the walking circuit");
     try {
-      const route = await requestRoute(ROUTE_STOPS, {
-        roundtrip: "true",
-        source: "first",
-        destination: "first"
-      });
+      const closedLoopStops = [...ROUTE_STOPS, ROUTE_STOPS[0]];
+      const route = await requestRoute(closedLoopStops);
       drawCircuit(route);
       if (state.location) setInitialStart(state.location);
       setStatus(state.location ? "Nearest start point selected" : "Circuit ready — waiting for location");
