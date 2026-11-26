@@ -495,3 +495,95 @@ button { font: inherit; }
   border-radius: 4px;
   background: var(--saffron);
 }
+
+
+/* Featured Adi Annamalaiyar pilgrimage stop */
+.temple-card-featured {
+  border-color: #d8bd8a;
+  background: linear-gradient(135deg, #fffdf7 0%, #f8f0de 100%);
+  box-shadow: 0 5px 18px rgba(112, 81, 37, .08);
+}
+.temple-card-featured .temple-index {
+  background: #355b49;
+  color: #fffefa;
+}
+.temple-featured-tag,
+.adi-visit-kicker,
+.map-popup-kicker {
+  display: inline-block;
+  color: #94612f;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  line-height: 1.5;
+}
+.temple-featured-tag { margin: 0 0 6px; }
+.adi-visit-banner {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 15px;
+  margin: 22px 0 24px;
+  padding: 16px 19px;
+  border: 1px solid #e4d2ac;
+  border-radius: 16px;
+  background: #fbf5e7;
+}
+.adi-visit-banner-mark {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  background: #355b49;
+  color: #fffefa;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+}
+.adi-visit-banner-copy h3 {
+  margin: 3px 0 2px;
+  color: #334b3c;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 650;
+}
+.adi-visit-banner-copy p {
+  margin: 0;
+  color: #6f756a;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.adi-visit-links,
+.map-popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.adi-visit-links a,
+.map-popup-actions a {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid #d7c39c;
+  border-radius: 999px;
+  color: #49664f;
+  background: rgba(255,255,255,.68);
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.adi-visit-links a:hover,
+.map-popup-actions a:hover { background: #fffefa; }
+.pilgrim-marker--adi {
+  width: 39px;
+  height: 39px;
+  background: #98612e;
+  box-shadow: 0 0 0 4px rgba(214, 171, 103, .35), 0 4px 12px rgba(39,50,41,.34);
+}
+.map-popup-kicker { margin-bottom: 5px; }
+
+@media (max-width: 760px) {
+  .adi-visit-banner { grid-template-columns: 38px 1fr; align-items: start; padding: 14px; }
+  .adi-visit-links { grid-column: 2; }
+}
