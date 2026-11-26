@@ -276,3 +276,69 @@
   border: 0 !important;
 }
 .map-app-retry[hidden] { display: none !important; }
+
+
+/* Satellite-first map clarity and prominent Adi Annamalaiyar guidance */
+.girivalam-map-only .leaflet-container { max-width: 100%; }
+.girivalam-map-only .leaflet-tile {
+  image-rendering: auto;
+}
+.girivalam-map-only .leaflet-control-layers {
+  background: rgba(255, 254, 250, .97);
+}
+.girivalam-marker--adi {
+  width: 41px;
+  height: 41px;
+  background: #a56c32;
+  box-shadow: 0 0 0 5px rgba(236, 196, 126, .36), 0 4px 12px rgba(34, 48, 36, .4);
+  animation: adi-marker-pulse 2.6s ease-out infinite;
+}
+@keyframes adi-marker-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(236, 196, 126, .28), 0 4px 12px rgba(34,48,36,.38); }
+  50% { box-shadow: 0 0 0 8px rgba(236, 196, 126, .1), 0 4px 12px rgba(34,48,36,.38); }
+}
+.adi-map-popup { min-width: 205px; max-width: 255px; }
+.adi-map-popup strong {
+  display: block;
+  margin: 4px 0 6px;
+  color: #334b3c;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.adi-map-popup p {
+  margin: 6px 0 10px;
+  color: #667168;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.adi-popup-kicker {
+  display: block;
+  color: #98612e;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .06em;
+}
+.adi-popup-links { display: flex; flex-wrap: wrap; gap: 7px; }
+.adi-popup-links a {
+  display: inline-flex;
+  padding: 6px 9px;
+  border: 1px solid #d9c49e;
+  border-radius: 999px;
+  color: #405e49;
+  font-size: 10px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.adi-popup-links a:hover { background: #f7f0df; }
+.map-app-button-voice.is-active {
+  background: #355b49;
+  color: #fffefa;
+  border-color: #355b49;
+}
+.map-app-button-voice.is-active:hover { background: #294838; }
+
+@media (max-width: 520px) {
+  .map-app-actions { gap: 6px; padding: 6px; }
+  .map-app-button { width: 37px; height: 37px; }
+  .map-app-button-start { width: 47px; height: 47px; }
+}
