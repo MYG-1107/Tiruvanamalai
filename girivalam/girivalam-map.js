@@ -592,14 +592,13 @@
 
   function updateStartNavigationUrl() {
     if (!el.goToStart || !state.startPoint) return;
-    el.goToStart.onclick = () => {
-      if (state.location && distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres()) {
-        window.open(makeNavigationUrl(state.startPoint), "_blank", "noopener");
-      } else {
-        state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
-        state.startMarker?.openPopup();
-      }
-    };
+    const needsDirections = state.location &&
+      distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres();
+    el.goToStart.setAttribute(
+      "aria-label",
+      needsDirections ? "Open walking directions to your start point" : "Show your Girivalam start point"
+    );
+    el.goToStart.title = needsDirections ? "Navigate to start" : "Show start point";
   }
 
   function requestCurrentLocation() {
@@ -685,9 +684,16 @@
       }
     });
     el.goToStart?.addEventListener("click", () => {
-      if (state.startPoint) {
-        state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
+      if (!state.startPoint) return;
+      const needsDirections = state.location &&
+        distanceMetres(state.location, state.startPoint) > startDistanceToleranceMetres();
+      if (needsDirections) {
+        const opened = window.open(makeNavigationUrl(state.startPoint), "_blank", "noopener");
+        if (!opened) setStatus("Allow pop-ups to open walking directions");
+        return;
       }
+      state.map.setView([state.startPoint.lat, state.startPoint.lon], 17, { animate: true });
+      state.startMarker?.openPopup();
     });
     byId("centreMap")?.addEventListener("click", centreOnUser);
     byId("fullscreenMap")?.addEventListener("click", toggleFullscreen);
