@@ -289,7 +289,8 @@ async function findSivanagarPin() {
       if (!Array.isArray(coordinates) || coordinates.length < 2) return false;
       const [lon, lat] = coordinates;
       const inTown = lat > 12.18 && lat < 12.30 && lon > 79.00 && lon < 79.13;
-      const matchesName = label.includes("siva") || label.includes("sivanagar");
+      const placeName = String(properties.name || "").toLowerCase().replace(/[^a-z]/g, "");
+      const matchesName = placeName.includes("sivanagar");
       return inTown && matchesName;
     });
     if (!candidate) return;
