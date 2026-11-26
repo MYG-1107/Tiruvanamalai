@@ -53,12 +53,11 @@ The site uses public map services with their own usage policies and availability
 
 ## Search engine crawling and SEO
 
-- `robots.txt` allows crawling and references the root sitemap.
 - `sitemap.xml` lists the homepage, dedicated `/girivalam/` URL and accommodation page using absolute canonical URLs.
 - The homepage and map page specify unique titles, descriptions, canonical URLs, index/follow directives and social metadata. The map page includes WebApplication structured data and a screen-reader heading.
 - The homepage links directly to `/girivalam/`; the old `girivalam.html` address redirects to the new page and is marked noindex to avoid duplicate URLs.
 
-These are crawlability and indexing preparations, not a promise of Google indexing or ranking. Google Search Console ownership verification and sitemap submission must be completed by the site owner. URL Inspection should then be used to test the live URL and request indexing. Search position is determined by Google's systems and cannot be guaranteed.
+The GitHub Pages project URL is hosted under a subpath of the shared `myg-1107.github.io` host, so a `robots.txt` stored in this repository would not be the host-level `/robots.txt`. The page metadata does not request `noindex`; the sitemap should be submitted directly in Search Console. These are crawlability and indexing preparations, not a promise of Google indexing or ranking. Google Search Console ownership verification and sitemap submission must be completed by the site owner. URL Inspection should then be used to test the live URL and request indexing. Search position is determined by Google's systems and cannot be guaranteed.
 
 ## Run locally
 
