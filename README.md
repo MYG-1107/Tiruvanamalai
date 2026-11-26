@@ -5,12 +5,13 @@ A lightweight, static website hosted on GitHub Pages to help visitors explore th
 ## Pages
 
 - **Discover (index.html)** — interactive temple map, browser geolocation, temple cards and straight-line distance estimates for the first set of important temples.
-- **Girivalam (girivalam.html)** — interactive street / satellite map with numbered Ashta Lingam markers, a road-following route preview, clockwise-walking guidance and the shrine sequence.
+- **Live Girivalam map (/girivalam/)** — dedicated, map-only full-screen GPS experience. It finds the nearest point on the closed walking circuit, guides the pilgrim to that start, tracks clockwise progress, supports pause/resume and recognises completion after returning to the same point.
+- **Legacy Girivalam URL (girivalam.html)** — redirects to the new map-only page.
 - **Stay guide (accommodation.html)** — accommodation categories with map searches to help visitors compare nearby options.
 
 ## Location and distance behaviour
 
-The home page asks the visitor's browser for location permission when it opens. The visitor can decline and still use the map. Location is held only in page memory; this site does not save it or send it to an application server.
+The homepage asks the visitor's browser for location permission when it opens. The visitor can decline and still use the temple map. Location is held only in page memory; this site does not save it to a database or account. The dedicated Girivalam tracker also uses browser GPS in page memory. To calculate the blue walking connector to the selected start point, the current GPS coordinate and the start coordinate are sent to the public OpenStreetMap foot-routing service. The tracker itself calculates progress in the browser and does not upload a GPS trace.
 
 The home page calculates straight-line distance estimates from the browser location and labels them clearly; these are not walking or road distances. Visitors who share a location close to Tiruvannamalai see their blue position marker with the temple pins in one view. Visitors farther away keep the map centred on Tiruvannamalai so the temple markers remain readable; the map's My location control can centre on the visitor. Google Maps and Apple Maps links open external walking navigation.
 
@@ -27,11 +28,17 @@ The first two map points are:
 
 To add more temples later, add an object to TEMPLE_PLACES in script.js with a unique id, a display name, a search query, and verified latitude / longitude coordinates. To add further Girivalam stops, add a stop to GIRIVALAM_STOPS in the required clockwise order and update the route order used by loadGirivalamRoadRoute().
 
-## Girivalam map and route preview
+## Map-only Girivalam tracker
 
-The Tiruvannamalai District Administration describes the road encircling Arunachala as approximately 14 km and lists the eight Lingams in traditional sequence. The Girivalam map plots numbered markers for the eight Ashta Lingam shrines and a distinct marker for Adhi Annamalaiyar Temple. Selecting a shrine card below the map focuses the matching marker.
+The dedicated URL is `https://myg-1107.github.io/Tiruvanamalai/girivalam/`. The page is intentionally map-only: the interactive map occupies the viewport with compact controls and no article layout.
 
-The visitor requests the route line by selecting **Load road route**; it is not requested automatically on every page visit. The line is calculated from the public OpenStreetMap foot-routing service through its OSRM-compatible route endpoint. It is a road-following planning preview joining the mapped shrine pins, not an official survey or guaranteed live route. The FOSSGIS public routing service asks clients to keep usage light and limits requests to one per second, so the website makes only an explicit user-initiated request. For sustained production traffic, move routing to a dedicated provider or self-hosted service. If the public routing service is unavailable, the map retains its markers and provides external Google Maps / Apple Maps navigation links instead of drawing a guessed line. Follow local signs, police directions and any festival diversions.
+The closed clockwise route is requested from the OpenStreetMap foot-routing network through the FOSSGIS OSRM-compatible endpoint. Waypoints are passed in this order: Arunachaleswarar Temple / East Rajagopuram, Indra, Agni, Yama, Niruthi, Varuna, Adi Annamalai, Vayu, Kubera, Esanya, then back to the temple. The route is checked for a plausible circuit length before it is drawn. If the public route service fails or returns an implausible loop, the page does not draw a guessed circle and offers a retry.
+
+The visitor's GPS position is projected onto the returned route geometry. The nearest point becomes that visitor's personal start / finish marker. A road-following connector is requested from the public foot-routing service when the visitor is within 45 km; for longer approaches the map opens Google Maps walking directions. The visitor must reach the marked start and press Start. Progress is then tracked along the clockwise path; the walk can be paused and resumed. Completion is recognised only when tracked progress is close to a full route and the GPS position returns to the same start marker.
+
+The route distance shown is calculated from the returned walking-road geometry. It should be close to the traditional approximately 14 km, but it is not hard-coded to exactly 14.00 km. Some shrine coordinates are approximate public map positions and must be checked on the ground. The path is a planning aid, not an official surveyed track, emergency navigation or a guarantee that all roads are currently open. Follow local police, traffic and festival-diversion instructions.
+
+Tracking requires HTTPS, browser location permission and a usable GPS signal. Browsers may suspend GPS when a page is backgrounded or the device enters power-saving mode. Progress is kept only in page memory, so a reload or closed tab resets the active walk.
 
 ## Map data, layers and services
 
@@ -42,7 +49,16 @@ The visitor requests the route line by selecting **Load road route**; it is not 
 - Third-place name lookup: [Photon geocoder](https://photon.komoot.io/)
 - External navigation: Google Maps and Apple Maps
 
-The site uses public map services with their own usage policies and availability limits. It does not require a Google Maps API key or store visitor location.
+The site uses public map services with their own usage policies and availability limits. It does not require a Google Maps API key. The website does not store visitor location, but the GPS connector coordinates are sent to the public foot-routing service when a connector is requested.
+
+## Search engine crawling and SEO
+
+- `robots.txt` allows crawling and references the root sitemap.
+- `sitemap.xml` lists the homepage, dedicated `/girivalam/` URL and accommodation page using absolute canonical URLs.
+- The homepage and map page specify unique titles, descriptions, canonical URLs, index/follow directives and social metadata. The map page includes WebApplication structured data and a screen-reader heading.
+- The homepage links directly to `/girivalam/`; the old `girivalam.html` address redirects to the new page and is marked noindex to avoid duplicate URLs.
+
+These are crawlability and indexing preparations, not a promise of Google indexing or ranking. Google Search Console ownership verification and sitemap submission must be completed by the site owner. URL Inspection should then be used to test the live URL and request indexing. Search position is determined by Google's systems and cannot be guaranteed.
 
 ## Run locally
 
