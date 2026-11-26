@@ -642,8 +642,8 @@ function initialiseGirivalamMap() {
   if (googleLink) googleLink.href = makeGirivalamDirectionsUrl();
 
   bindFullscreen("girivalamMapFullscreen", "girivalamMap", girivalamMap);
+  setRouteStatus("Map ready. Select Load road route to request the walking-path preview.", "info");
   window.setTimeout(() => girivalamMap.invalidateSize(), 150);
-  loadGirivalamRoadRoute();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
