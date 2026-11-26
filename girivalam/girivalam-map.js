@@ -126,6 +126,7 @@
     const imagery = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       tileOptions({
+        maxNativeZoom: 23,
         attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
       })
     );
