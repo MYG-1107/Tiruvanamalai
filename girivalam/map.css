@@ -342,3 +342,11 @@
   .map-app-button { width: 37px; height: 37px; }
   .map-app-button-start { width: 47px; height: 47px; }
 }
+
+/* Keep longer spoken/temple guidance readable on narrow phones */
+.map-app-status {
+  width: min(90vw, 520px);
+  max-width: min(90vw, 520px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
