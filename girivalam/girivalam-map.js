@@ -14,6 +14,7 @@
   const FINISH_RADIUS_METRES = 48;
   const MAX_PROGRESS_JUMP_METRES = 110;
   const ROUTE_STOPS = [
+    { id: "main-temple", number: "T", name: "Arunachaleswarar Temple · East Rajagopuram", direction: "Start / finish", lat: 12.23184, lon: 79.06683 },
     { id: "indra", number: "1", name: "Indra Lingam", direction: "East", lat: 12.22925, lon: 79.07039 },
     { id: "agni", number: "2", name: "Agni Lingam", direction: "South-East", lat: 12.2242, lon: 79.0590 },
     { id: "yama", number: "3", name: "Yama Lingam", direction: "South", lat: 12.22644, lon: 79.04440 },
@@ -357,6 +358,7 @@
     }).addTo(state.map);
     state.startMarker.bindPopup("<strong>Your Girivalam start / finish</strong>");
     el.goToStart?.classList.remove("is-hidden");
+    updateStartNavigationUrl();
     updateProgressUi();
   }
 
@@ -386,13 +388,13 @@
         {}
       );
       const line = route.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
-      state.connectorLayer = L.polyline(line, {
+      const halo = L.polyline(line, {
         color: "#ffffff", weight: 8, opacity: 0.95, lineCap: "round"
-      }).addTo(state.map);
+      });
       const colouredLine = L.polyline(line, {
         color: "#287db8", weight: 4, opacity: 1, dashArray: "7 8", lineCap: "round"
-      }).addTo(state.map);
-      state.connectorLayer = L.layerGroup([state.connectorLayer, colouredLine]).addTo(state.map);
+      });
+      state.connectorLayer = L.layerGroup([halo, colouredLine]).addTo(state.map);
       setStatus("Follow the blue line to your start point");
     } catch (error) {
       setStatus("Start point ready — open walking directions");
@@ -599,7 +601,8 @@
     setStatus("Loading the walking circuit");
     try {
       const closedLoopStops = [...ROUTE_STOPS, ROUTE_STOPS[0]];
-      const route = await requestRoute(closedLoopStops);
+      const radiuses = closedLoopStops.map(() => "180").join(";");
+      const route = await requestRoute(closedLoopStops, { radiuses });
       drawCircuit(route);
       if (state.location) setInitialStart(state.location);
       setStatus(state.location ? "Nearest start point selected" : "Circuit ready — waiting for location");
