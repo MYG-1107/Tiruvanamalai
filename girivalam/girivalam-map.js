@@ -544,6 +544,13 @@
   }
 
   function toggleVoiceGuidance() {
+    const speechAvailable = window.speechSynthesis &&
+      typeof window.SpeechSynthesisUtterance === "function";
+    if (!speechAvailable) {
+      setStatus("Voice guidance is unavailable in this browser. Temple approach messages will still appear on the map.");
+      return;
+    }
+
     state.voiceEnabled = !state.voiceEnabled;
     if (el.voiceButton) {
       el.voiceButton.classList.toggle("is-active", state.voiceEnabled);
@@ -556,7 +563,7 @@
       setStatus(message);
       speakGuidance(message);
     } else {
-      window.speechSynthesis?.cancel();
+      window.speechSynthesis.cancel();
       setStatus("Voice guidance is off. Temple approach messages will still appear on the map.");
     }
   }
