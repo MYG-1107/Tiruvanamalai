@@ -395,6 +395,9 @@
         color: "#287db8", weight: 4, opacity: 1, dashArray: "7 8", lineCap: "round"
       });
       state.connectorLayer = L.layerGroup([halo, colouredLine]).addTo(state.map);
+      const connectorBounds = L.latLngBounds(line);
+      state.routePoints.forEach((point) => connectorBounds.extend([point.lat, point.lon]));
+      state.map.fitBounds(connectorBounds.pad(0.1), { maxZoom: 14 });
       setStatus("Follow the blue line to your start point");
     } catch (error) {
       setStatus("Start point ready — open walking directions");
@@ -508,7 +511,8 @@
       return;
     }
     if (delta > MAX_PROGRESS_JUMP_METRES) {
-      setStatus("GPS signal updating");
+      state.lastAlong = projection.along;
+      setStatus("GPS signal updated");
       return;
     }
 
@@ -604,12 +608,15 @@
       const radiuses = closedLoopStops.map(() => "180").join(";");
       const route = await requestRoute(closedLoopStops, { radiuses });
       drawCircuit(route);
+      if (el.retryButton) el.retryButton.hidden = true;
+      setError("");
       if (state.location) setInitialStart(state.location);
       setStatus(state.location ? "Nearest start point selected" : "Circuit ready — waiting for location");
       updateProgressUi();
     } catch (error) {
       setStatus("The walking route could not be loaded");
-      setError("Map route data is temporarily unavailable. Please try again or use the external walking directions.");
+      setError("Map route data is temporarily unavailable. Please try again.");
+      if (el.retryButton) el.retryButton.hidden = false;
     }
   }
 
@@ -639,6 +646,7 @@
     el.total = byId("totalDistance");
     el.startButton = byId("startOrFinishWalk");
     el.goToStart = byId("goToStart");
+    el.retryButton = byId("retryCircuit");
 
     el.startButton?.addEventListener("click", () => {
       if (state.tracking) {
@@ -654,6 +662,7 @@
     });
     byId("centreMap")?.addEventListener("click", centreOnUser);
     byId("fullscreenMap")?.addEventListener("click", toggleFullscreen);
+    el.retryButton?.addEventListener("click", loadCircuit);
 
     document.addEventListener("fullscreenchange", () => {
       window.setTimeout(() => state.map?.invalidateSize(), 250);
