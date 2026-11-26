@@ -1,0 +1,278 @@
+/* Dedicated full-screen Girivalam map */
+.girivalam-map-only {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: #e9ece4;
+}
+.girivalam-map-only .map-app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #e9ece4;
+}
+.live-girivalam-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #e9ece4;
+}
+.girivalam-map-only .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #e9ece4;
+  font: inherit;
+}
+.map-app-back,
+.map-app-progress,
+.map-app-actions,
+.map-app-status,
+.map-app-error {
+  position: absolute;
+  z-index: 1000;
+}
+.map-app-back {
+  top: max(14px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border: 1px solid rgba(53, 74, 57, .12);
+  border-radius: 50%;
+  background: rgba(255, 254, 250, .96);
+  color: #355b49;
+  box-shadow: 0 4px 16px rgba(30, 47, 35, .15);
+}
+.map-app-back svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.map-app-progress {
+  top: max(14px, env(safe-area-inset-top));
+  left: 50%;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-height: 43px;
+  padding: 8px 16px;
+  border: 1px solid rgba(53, 74, 57, .12);
+  border-radius: 999px;
+  background: rgba(255, 254, 250, .96);
+  color: #355b49;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(30, 47, 35, .15);
+  transform: translateX(-50%);
+}
+.map-app-progress #walkedDistance {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.map-app-progress #totalDistance,
+.map-app-progress .progress-divider {
+  color: #7a847b;
+  font-size: 11px;
+}
+.progress-symbol {
+  margin-right: 4px;
+  color: #c27b3d;
+  font-size: 18px;
+}
+.map-app-actions {
+  bottom: max(24px, calc(env(safe-area-inset-bottom) + 14px));
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px;
+  border: 1px solid rgba(53, 74, 57, .1);
+  border-radius: 999px;
+  background: rgba(255, 254, 250, .96);
+  box-shadow: 0 6px 24px rgba(30, 47, 35, .2);
+  transform: translateX(-50%);
+}
+.map-app-button {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  padding: 0;
+  border: 1px solid #e7e0d4;
+  border-radius: 50%;
+  background: #fffefa;
+  color: #355b49;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+.map-app-button:hover { background: #edf2eb; transform: translateY(-1px); }
+.map-app-button:disabled { opacity: .38; cursor: not-allowed; transform: none; }
+.map-app-button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.map-app-button-start {
+  width: 54px;
+  height: 54px;
+  border: 0;
+  background: #355b49;
+  color: #fffefa;
+  box-shadow: 0 3px 10px rgba(53, 91, 73, .28);
+}
+.map-app-button-start:hover { background: #294838; }
+.map-app-button-start:disabled { opacity: .45; }
+.map-app-button-start svg { width: 25px; height: 25px; }
+.map-app-button-route {
+  background: #f4e8d6;
+  color: #945b2e;
+  border-color: #ead5bb;
+}
+.map-app-button-route.is-hidden { display: none; }
+.map-app-status {
+  bottom: max(99px, calc(env(safe-area-inset-bottom) + 91px));
+  left: 50%;
+  max-width: min(78vw, 360px);
+  padding: 8px 13px;
+  border: 1px solid rgba(53, 74, 57, .1);
+  border-radius: 999px;
+  background: rgba(255, 254, 250, .94);
+  color: #58635a;
+  box-shadow: 0 3px 13px rgba(30, 47, 35, .13);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.4;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.map-app-error {
+  top: max(66px, calc(env(safe-area-inset-top) + 60px));
+  left: 50%;
+  width: min(90vw, 410px);
+  padding: 11px 14px;
+  border: 1px solid #e4c9a9;
+  border-radius: 12px;
+  background: rgba(255, 249, 239, .97);
+  color: #8a5a30;
+  box-shadow: 0 4px 16px rgba(30, 47, 35, .13);
+  font-size: 10px;
+  line-height: 1.5;
+  transform: translateX(-50%);
+}
+.map-app-error[hidden] { display: none; }
+.map-app-legend { display: none; }
+.girivalam-marker-shell { background: transparent; border: 0; }
+.girivalam-marker {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fffefa;
+  border-radius: 50% 50% 50% 8px;
+  background: #c27b3d;
+  color: #fffefa;
+  box-shadow: 0 3px 9px rgba(34, 48, 36, .35);
+  transform: rotate(-45deg);
+}
+.girivalam-marker b {
+  z-index: 1;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1;
+  transform: rotate(45deg);
+}
+.girivalam-marker--temple { background: #355b49; }
+.girivalam-marker--start {
+  width: 39px;
+  height: 39px;
+  background: #267bb6;
+}
+.girivalam-map-only .leaflet-control-layers {
+  margin-top: max(14px, env(safe-area-inset-top));
+  margin-right: max(14px, env(safe-area-inset-right));
+  border: 1px solid rgba(53, 74, 57, .12);
+  border-radius: 11px;
+  box-shadow: 0 4px 16px rgba(30, 47, 35, .15);
+  color: #355b49;
+  font-size: 11px;
+}
+.girivalam-map-only .leaflet-control-layers-expanded { padding: 8px 10px; }
+.girivalam-map-only .leaflet-control-zoom {
+  margin-left: max(14px, env(safe-area-inset-left));
+  margin-bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
+  border: 0;
+  box-shadow: 0 4px 16px rgba(30, 47, 35, .15);
+}
+.girivalam-map-only .leaflet-control-zoom a {
+  width: 37px;
+  height: 37px;
+  color: #355b49;
+}
+.girivalam-map-only .leaflet-control-scale {
+  margin-bottom: max(95px, calc(env(safe-area-inset-bottom) + 90px));
+  margin-left: max(14px, env(safe-area-inset-left));
+}
+.girivalam-map-only .leaflet-control-attribution {
+  margin-right: 5px;
+  border-radius: 6px 0 0;
+  background: rgba(255, 254, 250, .85);
+  font-size: 8px;
+}
+.girivalam-map-only .leaflet-popup-content-wrapper {
+  border-radius: 11px;
+}
+.girivalam-map-only .leaflet-popup-content {
+  margin: 10px 13px;
+  font-size: 11px;
+}
+.girivalam-map-only .leaflet-popup-content strong { font-family: Georgia, serif; font-size: 15px; }
+.girivalam-map-only .map-placeholder {
+  z-index: 10;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #e8ece3;
+  color: #69736b;
+  font-size: 12px;
+}
+@media (max-width: 520px) {
+  .map-app-back { width: 39px; height: 39px; }
+  .map-app-progress { min-height: 39px; padding: 7px 11px; gap: 4px; }
+  .map-app-progress #walkedDistance { font-size: 18px; }
+  .map-app-progress #totalDistance, .map-app-progress .progress-divider { font-size: 10px; }
+  .map-app-actions { gap: 7px; padding: 7px; bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px)); }
+  .map-app-button { width: 39px; height: 39px; }
+  .map-app-button-start { width: 49px; height: 49px; }
+  .map-app-status { bottom: max(88px, calc(env(safe-area-inset-bottom) + 84px)); }
+  .girivalam-map-only .leaflet-control-zoom { margin-bottom: max(112px, calc(env(safe-area-inset-bottom) + 112px)); }
+}
+.map-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.map-app-retry[hidden] { display: none !important; }
