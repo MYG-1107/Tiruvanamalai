@@ -350,3 +350,101 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+
+/* Landmark-aware guidance card shown when the pilgrim approaches the main temple */
+.temple-guide-card {
+  position: absolute;
+  z-index: 1050;
+  top: max(68px, calc(env(safe-area-inset-top) + 64px));
+  left: max(68px, calc(env(safe-area-inset-left) + 62px));
+  width: min(360px, calc(100vw - 92px));
+  max-height: min(62vh, 520px);
+  overflow-y: auto;
+  padding: 17px 17px 14px;
+  border: 1px solid rgba(53, 74, 57, .15);
+  border-radius: 14px;
+  background: rgba(255, 254, 250, .97);
+  color: #3b493d;
+  box-shadow: 0 9px 30px rgba(30, 47, 35, .22);
+  backdrop-filter: blur(8px);
+}
+.temple-guide-card[hidden] { display: none; }
+.temple-guide-close {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f1eee5;
+  color: #3d5846;
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+}
+.temple-guide-kicker {
+  margin: 0 33px 5px 0;
+  color: #98612e;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .1em;
+}
+.temple-guide-card h2 {
+  margin: 0 30px 7px 0;
+  color: #355b49;
+  font-family: Georgia, serif;
+  font-size: 19px;
+  line-height: 1.2;
+}
+.temple-guide-card > p:not(.temple-guide-kicker) {
+  margin: 0 0 10px;
+  color: #6d766f;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.temple-guide-card ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+.temple-guide-card li {
+  padding-left: 2px;
+  color: #59685d;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.temple-guide-card li strong { color: #355b49; }
+.temple-guide-card > small {
+  display: block;
+  margin-top: 11px;
+  padding-top: 9px;
+  border-top: 1px solid #e8dfce;
+  color: #89765e;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.girivalam-marker--temple { background: #355b49; }
+.girivalam-marker--ashram { background: #55765b; }
+.girivalam-marker--cave { background: #6a6c75; }
+.temple-marker-popup { max-width: 245px; }
+.temple-marker-popup p,
+.spiritual-place-popup p { margin: 6px 0; line-height: 1.5; }
+.spiritual-place-popup { max-width: 230px; }
+
+@media (max-width: 520px) {
+  .temple-guide-card {
+    top: max(65px, calc(env(safe-area-inset-top) + 60px));
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: min(39dvh, 355px);
+    padding: 13px 13px 11px;
+  }
+  .temple-guide-card h2 { font-size: 17px; }
+  .temple-guide-card li { font-size: 9px; }
+}
