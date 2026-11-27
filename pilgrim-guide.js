@@ -88,7 +88,7 @@
     ["Arunachaleswarar (Annamalaiyar)", "The main Shiva sanctum."],
     ["Unnamulai Amman Shrine", "The Goddess shrine; allow time for darshan."],
     ["Pathala Lingam", "The underground shrine associated with Ramana Maharshi's early days in Tiruvannamalai."],
-    ["Kambathu Ilayanar", "The Murugan shrine associated with the pillar legend."],
+    ["Kambathu Ilaiyanar", "The Murugan shrine associated with the pillar legend."],
     ["Periya Nandi", "The great Nandi facing the main sanctum."],
     ["Sivaganga Theertham and Vinayagar", "The sacred tank and nearby Vinayagar shrine."],
     ["Sambandha Vinayagar", "A Vinayagar shrine in the outer courtyard."],
