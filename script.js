@@ -400,6 +400,8 @@ function locateUser() {
         fitTempleArea();
         setLocationStatus("Location found. The map stays focused on Tiruvannamalai; your temple distances are calculated from your current location.");
       }
+      // Refit after the visitor guide adds the Lingams and nearby ashram markers.
+      window.fitAllVisitorPlaces?.();
     },
     (error) => {
       const messages = {
