@@ -174,6 +174,13 @@
   function fitAllVisitorPlaces() {
     if (!visitMap) return;
     const points = allMapPoints().map((place) => [place.lat, place.lon]);
+    const current = latestLocation || userCoordinates;
+    if (current && haversineKm(current, {
+      lat: TIRUVANNAMALAI_CENTER[0],
+      lon: TIRUVANNAMALAI_CENTER[1]
+    }) <= MAX_LOCAL_FIT_DISTANCE_KM) {
+      points.push([current.lat, current.lon]);
+    }
     if (points.length) {
       visitMap.fitBounds(L.latLngBounds(points).pad(0.12), { maxZoom: 14 });
     }
@@ -453,6 +460,7 @@
     SPIRITUAL_PLACES.forEach((place) => makeMarker(place, place.code, place.kind));
     renderVisitorCards();
     renderTempleHighlights();
+    window.fitAllVisitorPlaces = fitAllVisitorPlaces;
     fitAllVisitorPlaces();
 
     document.getElementById("homeMapFit")?.addEventListener("click", fitAllVisitorPlaces);
