@@ -42,7 +42,7 @@ Tracking requires HTTPS, browser location permission and a usable GPS signal. Th
 
 ## Map data, layers and services
 
-- **Default satellite imagery:** [Esri World Imagery](https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer), with an Esri place-label overlay. The service publishes cached imagery through zoom level 23; the map uses these native zoom levels instead of stopping at zoom 19.
+- **Default satellite imagery:** [Esri World Imagery](https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer), with an Esri place-label overlay. Although the global cache advertises levels through 23, high-detail coverage varies by location. To prevent Esri's own “Map data not yet available” placeholder tiles around Tiruvannamalai, the map requests native satellite imagery only through level 18 and lets Leaflet enlarge those tiles up to map zoom 21. This keeps the view zoomable but can look softer at the closest zoom levels because the source imagery does not contain additional local detail.
 - **Street fallback and reference layer:** [OpenStreetMap](https://www.openstreetmap.org/copyright); Esri street map is also available in the homepage layer selector. If satellite tiles repeatedly fail, the map falls back to a street layer and displays a message rather than leaving the visitor with a broken map.
 - Map rendering: [Leaflet](https://leafletjs.com/)
 - Road route preview: [OpenStreetMap foot-routing service](https://routing.openstreetmap.de/)
@@ -79,7 +79,7 @@ This is an independent visitor guide, not an official temple or government websi
 
 ## Latest map and temple guidance updates
 
-- Satellite imagery is the default view on the homepage and the live Girivalam map. The imagery layer uses Esri's published native zoom levels; the street layers scale their last native tiles at higher zooms, and a repeated satellite tile failure triggers a street-map fallback.
+- Satellite imagery is the default view on the homepage and the live Girivalam map. The Esri satellite layer uses a conservative local native zoom cap of 18 and overzooms the last reliable tiles up to map zoom 21. This avoids requesting deeper local tiles that Esri may fill with “Map data not yet available” imagery. Genuine network tile failures still trigger a street-map fallback.
 - Adi Annamalaiyar Temple is featured as the first important temple card, with a highlighted map marker, Tamil and English popup text, and direct Apple Maps / Google Maps links.
 - During the clockwise GPS walk, the tracker calculates the Adi Annamalaiyar waypoint along the returned route and shows an approach alert before arrival. The Voice Guidance control can speak the prompt; the visual message remains available when voice guidance is off or unsupported.
 - The newest Apple Maps India release (November 2026) is used as a design reference for bilingual place information and clearer landmark-led guidance. The website does not pretend to embed Apple's imagery; that needs a valid MapKit JS token.
@@ -90,3 +90,10 @@ This is an independent visitor guide, not an official temple or government websi
 - The walk-start distance check accounts for the GPS accuracy reported by the device, with a maximum approach tolerance of 73 m. A start still requires a usable fix of 65 m accuracy or better.
 - GPS position is watched continuously, and the start-navigation control performs one action per tap: external walking directions when the pilgrim is away, or map focus when nearby.
 - The route and GPS workflow should still be verified on a real phone outdoors. Browser GPS, public routing availability, map tiles, and actual walking progress are not fully reproducible in static code checks.
+
+
+## Handling deep satellite zoom
+
+Esri's World Imagery cache advertises global levels through 23, but actual imagery coverage varies from place to place. In areas without newer high-resolution imagery, the server can return a normal image tile containing the text “Map data not yet available”; this is not an HTTP tile error, so a regular Leaflet `tileerror` handler cannot detect it. The two Tiruvannamalai maps therefore cap satellite requests at native level 18 and allow visual overzoom through level 21. Leaflet requests the level-18 tile and scales it for closer views instead of requesting missing local detail. This trades sharpness at extreme zoom for a continuous map without the Esri no-data graphic. A genuine network failure still switches to a street map.
+
+Leaflet documents `maxNativeZoom` as the maximum source-tile zoom, with tiles above that level scaled for display: [Leaflet 1.9.4 TileLayer reference](https://leafletjs.com/reference-1.9.4.html). Esri documents the location-dependent imagery coverage and no-data tile behaviour: [Esri World Imagery coverage](https://www.arcgis.com/home/item.html?id=50c23e4987a44de4ab163e1baeab4a46), [Esri Community explanation](https://community.esri.com/cs/discussion/81070/map-data-not-yet-available).
