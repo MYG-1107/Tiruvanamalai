@@ -33,6 +33,36 @@
     { id: "esanya", number: "8", name: "Esanya Lingam", direction: "North-East", lat: 12.245113, lon: 79.074095 }
   ];
 
+  const SPIRITUAL_PLACES = [
+    {
+      id: "ramanasramam", code: "R", name: "Sri Ramanasramam", kind: "ashram",
+      lat: 12.22369, lon: 79.05672, approximate: false,
+      description: "The ashram associated with Sri Ramana Maharshi. Visit quietly and follow the ashram's visitor guidance."
+    },
+    {
+      id: "seshadri-ashram", code: "S", name: "Sri Seshadri Swamigal Ashram", kind: "ashram",
+      lat: 12.22455, lon: 79.05890, approximate: true,
+      description: "A spiritual stop close to Sri Ramanasramam on Chengam Road. The pin is approximate; confirm the entrance locally."
+    },
+    {
+      id: "yogi-ashram", code: "Y", name: "Yogi Ramsuratkumar Ashram", kind: "ashram",
+      lat: 12.21841, lon: 79.05390, approximate: false,
+      description: "An ashram associated with Yogi Ramsuratkumar. Check current visitor access before stopping."
+    },
+    {
+      id: "virupaksha-cave", code: "V", name: "Virupaksha Cave", kind: "cave",
+      lat: 12.23386, lon: 79.06167, approximate: false,
+      description: "A historic meditation cave on Arunachala Hill. The approach is uphill; check access and conditions before climbing."
+    },
+    {
+      id: "skandashramam", code: "K", name: "Skandashramam", kind: "cave",
+      lat: 12.23452, lon: 79.06068, approximate: false,
+      description: "A hillside ashram associated with Sri Ramana Maharshi. The route is uphill from the Ramanasramam side; check access before setting out."
+    }
+  ];
+
+  const MAIN_TEMPLE = { lat: 12.23184, lon: 79.06683 };
+
   const state = {
     map: null,
     routeLayer: null,
@@ -61,6 +91,11 @@
     connectorBusy: false,
     adiAlong: null,
     adiCueStage: 0,
+    lingamAlong: [],
+    lingamCueId: null,
+    lingamCueStage: 0,
+    nearbyCueIds: new Set(),
+    templeGuideDismissed: false,
     voiceEnabled: false
   };
 
@@ -175,26 +210,47 @@
   function showStopMarkers() {
     ROUTE_STOPS.forEach((stop) => {
       const isAdi = stop.id === "adi";
+      const isMainTemple = stop.id === "main-temple";
       const marker = L.marker([stop.lat, stop.lon], {
-        icon: markerIcon(isAdi ? "A" : stop.number, isAdi ? "adi" : "lingam"),
+        icon: markerIcon(isAdi ? "A" : stop.number, isAdi ? "adi" : isMainTemple ? "temple" : "lingam"),
         title: stop.name,
         keyboard: true,
         riseOnHover: true
       }).addTo(state.map);
 
+      const apple = makeNavigationUrl(stop, "apple");
+      const google = makeNavigationUrl(stop, "google");
       if (isAdi) {
-        const apple = makeNavigationUrl(stop, "apple");
-        const google = makeNavigationUrl(stop, "google");
         marker.bindPopup(
           `<div class="adi-map-popup"><span class="adi-popup-kicker">IMPORTANT GIRIVALAM STOP · PLEASE DO NOT MISS</span><strong>ஆதி அண்ணாமலையார் திருக்கோயில்<br>Adi Annamalaiyar Temple</strong><p>A major temple on the Girivalam path at Adi Annamalai. Please plan a stop here for darshan before continuing your walk.</p><div class="adi-popup-links"><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a><a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></div></div>`
         );
+      } else if (isMainTemple) {
+        marker.bindPopup(
+          `<div class="temple-marker-popup"><strong>Arunachaleswarar Temple · Main entrance</strong><p>Allow time for darshan at Annamalaiyar and Unnamulai Amman, and look for Pathala Lingam, Kambathu Ilayanar, Periya Nandi, Sivaganga Theertham, the Thousand-Pillared Hall and the historic gopurams.</p><p>Indoor GPS cannot pinpoint individual shrines. Ask temple staff for directions and follow access notices.</p><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+        );
       } else {
-        const apple = makeNavigationUrl(stop, "apple");
-        const google = makeNavigationUrl(stop, "google");
         marker.bindPopup(
           `<div><strong>${stop.name}</strong><br><small>${stop.direction}</small><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
         );
       }
+      state.stopMarkers.push(marker);
+    });
+
+    SPIRITUAL_PLACES.forEach((place) => {
+      const marker = L.marker([place.lat, place.lon], {
+        icon: markerIcon(place.code, place.kind),
+        title: place.name,
+        keyboard: true,
+        riseOnHover: true
+      }).addTo(state.map);
+      const apple = makeNavigationUrl(place, "apple");
+      const google = makeNavigationUrl(place, "google");
+      const pinNote = place.approximate
+        ? "<p><em>Approximate map point — confirm the entrance locally.</em></p>"
+        : "";
+      marker.bindPopup(
+        `<div class="spiritual-place-popup"><strong>${place.name}</strong><p>${place.description}</p>${pinNote}<p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+      );
       state.stopMarkers.push(marker);
     });
   }
@@ -285,6 +341,16 @@
     const adiProjection = adiStop ? projectToCircuit(adiStop) : null;
     state.adiAlong = adiProjection ? adiProjection.along : null;
     state.adiCueStage = 0;
+    state.lingamAlong = ROUTE_STOPS
+      .filter((stop) => ["indra", "agni", "yama", "niruthi", "varuna", "vayu", "kubera", "esanya"].includes(stop.id))
+      .map((stop) => {
+        const projection = projectToCircuit(stop);
+        return projection ? { ...stop, along: projection.along } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.along - b.along);
+    state.lingamCueId = null;
+    state.lingamCueStage = 0;
 
     if (el.totalDistance) el.totalDistance.textContent = `${formatKm(state.routeLength)} km`;
     fitCircuit();
@@ -546,6 +612,81 @@
       : `Adi Annamalaiyar Temple is coming up in approximately ${Math.round(metresAhead)} metres. Please make time to visit this important temple.`);
   }
 
+  function updateNextLingamGuidance(projection) {
+    if (!state.routeLength || !projection || !state.lingamAlong.length) return;
+
+    if (state.lingamCueId) {
+      const previous = state.lingamAlong.find((stop) => stop.id === state.lingamCueId);
+      if (previous) {
+        const sincePrevious = (projection.along - previous.along + state.routeLength) % state.routeLength;
+        if (sincePrevious <= state.routeLength - 120) {
+          state.lingamCueId = null;
+          state.lingamCueStage = 0;
+        }
+      }
+    }
+
+    const upcoming = state.lingamAlong
+      .map((stop) => ({
+        ...stop,
+        metresAhead: (stop.along - projection.along + state.routeLength) % state.routeLength
+      }))
+      .sort((a, b) => a.metresAhead - b.metresAhead)[0];
+    if (!upcoming || upcoming.metresAhead > 550) return;
+
+    if (state.lingamCueId !== upcoming.id) {
+      state.lingamCueId = upcoming.id;
+      state.lingamCueStage = 0;
+    }
+
+    const stage = upcoming.metresAhead <= 90 ? 2 : 1;
+    if (stage <= state.lingamCueStage) return;
+    state.lingamCueStage = stage;
+
+    const message = stage === 2
+      ? `You are near ${upcoming.name}. This is Ashta Lingam stop ${upcoming.number}, in the ${upcoming.direction} direction. Please stop for darshan before continuing clockwise.`
+      : `Next Ashta Lingam: ${upcoming.name}, approximately ${Math.round(upcoming.metresAhead / 25) * 25} metres ahead. Please plan a short stop for darshan.`;
+    setStatus(message);
+    speakGuidance(stage === 2
+      ? `You are near ${upcoming.name}. Please stop for darshan.`
+      : `The next Lingam is ${upcoming.name}, about ${Math.round(upcoming.metresAhead)} metres ahead.`);
+  }
+
+  function updateNearbyPlaceGuidance(location) {
+    if (!location) return;
+
+    const mainDistance = distanceMetres(location, MAIN_TEMPLE);
+    if (mainDistance <= 450) {
+      if (el.templeGuide && !state.templeGuideDismissed) el.templeGuide.hidden = false;
+      if (!state.nearbyCueIds.has("main-temple")) {
+        state.nearbyCueIds.add("main-temple");
+        setStatus("You are near Arunachaleswarar Temple. Allow time for the main darshan and the important temple highlights shown on the map.");
+        speakGuidance("You are approaching Arunachaleswarar Temple. Please allow time for the main darshan and the important shrines and halls inside.");
+      }
+    } else if (mainDistance > 900) {
+      state.nearbyCueIds.delete("main-temple");
+      state.templeGuideDismissed = false;
+      if (el.templeGuide) el.templeGuide.hidden = true;
+    }
+
+    const nearby = SPIRITUAL_PLACES
+      .map((place) => ({ ...place, distance: distanceMetres(location, place) }))
+      .sort((a, b) => a.distance - b.distance);
+    const closest = nearby[0];
+    SPIRITUAL_PLACES.forEach((place) => {
+      const distance = distanceMetres(location, place);
+      if (distance > 800) state.nearbyCueIds.delete(place.id);
+    });
+    if (closest && closest.distance <= 380 && !state.nearbyCueIds.has(closest.id)) {
+      state.nearbyCueIds.add(closest.id);
+      const message = closest.kind === "cave"
+        ? `You are near ${closest.name}. This is an uphill hill-path visit. Check the current access and conditions before climbing.`
+        : `You are near ${closest.name}. Consider stopping for a quiet visit if it is open.`;
+      setStatus(message);
+      speakGuidance(message);
+    }
+  }
+
   function toggleVoiceGuidance() {
     const speechAvailable = window.speechSynthesis &&
       typeof window.SpeechSynthesisUtterance === "function";
@@ -672,6 +813,7 @@
     if (delta > 0) state.walkedMetres = Math.min(state.routeLength, state.walkedMetres + delta);
     state.lastAlong = projection.along;
     updateAdiGuidance(projection);
+    updateNextLingamGuidance(projection);
     maybeCompleteWalk(location, projection);
     updateProgressUi();
   }
@@ -682,6 +824,7 @@
     state.location = location;
     state.locationAccuracy = Number.isFinite(coords.accuracy) ? coords.accuracy : 9999;
     drawUserPosition(location);
+    updateNearbyPlaceGuidance(location);
 
     if (state.tracking) {
       if (state.locationAccuracy <= GPS_MAX_ACCURACY_METRES) {
@@ -809,6 +952,11 @@
     el.goToStart = byId("goToStart");
     el.retryButton = byId("retryCircuit");
     el.voiceButton = byId("voiceGuidance");
+    el.templeGuide = byId("templeGuideCard");
+    byId("closeTempleGuide")?.addEventListener("click", () => {
+      state.templeGuideDismissed = true;
+      if (el.templeGuide) el.templeGuide.hidden = true;
+    });
 
     el.startButton?.addEventListener("click", () => {
       if (state.tracking) {
