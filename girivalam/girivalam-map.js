@@ -618,8 +618,8 @@
     if (state.lingamCueId) {
       const previous = state.lingamAlong.find((stop) => stop.id === state.lingamCueId);
       if (previous) {
-        const sincePrevious = (projection.along - previous.along + state.routeLength) % state.routeLength;
-        if (sincePrevious <= state.routeLength - 120) {
+        const metresAheadOfPrevious = (previous.along - projection.along + state.routeLength) % state.routeLength;
+        if (metresAheadOfPrevious >= state.routeLength - 120) {
           state.lingamCueId = null;
           state.lingamCueStage = 0;
         }
