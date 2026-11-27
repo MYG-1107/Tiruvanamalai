@@ -226,7 +226,7 @@
         );
       } else if (isMainTemple) {
         marker.bindPopup(
-          `<div class="temple-marker-popup"><strong>Arunachaleswarar Temple · Main entrance</strong><p>Allow time for darshan at Annamalaiyar and Unnamulai Amman. Look for Pathala Lingam, Kambathu Ilayanar, Periya Nandi, Sivaganga Theertham and Vinayagar, Sambandha Vinayagar, Gopura Ilayanar, Kalyana Sundareswarar, the Thousand-Pillared Hall and the historic gopurams.</p><p>Indoor GPS cannot pinpoint individual shrines. Ask temple staff for directions and follow access notices.</p><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+          `<div class="temple-marker-popup"><strong>Arunachaleswarar Temple · Main entrance</strong><p>Allow time for darshan at Annamalaiyar and Unnamulai Amman. Look for Pathala Lingam, Kambathu Ilaiyanar, Periya Nandi, Sivaganga Theertham and Vinayagar, Sambandha Vinayagar, Gopura Ilayanar, Kalyana Sundareswarar, the Thousand-Pillared Hall and the historic gopurams.</p><p>Indoor GPS cannot pinpoint individual shrines. Ask temple staff for directions and follow access notices.</p><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
         );
       } else {
         marker.bindPopup(
