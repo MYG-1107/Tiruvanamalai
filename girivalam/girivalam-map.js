@@ -226,7 +226,7 @@
         );
       } else if (isMainTemple) {
         marker.bindPopup(
-          `<div class="temple-marker-popup"><strong>Arunachaleswarar Temple · Main entrance</strong><p>Allow time for darshan at Annamalaiyar and Unnamulai Amman, and look for Pathala Lingam, Kambathu Ilayanar, Periya Nandi, Sivaganga Theertham, the Thousand-Pillared Hall and the historic gopurams.</p><p>Indoor GPS cannot pinpoint individual shrines. Ask temple staff for directions and follow access notices.</p><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
+          `<div class="temple-marker-popup"><strong>Arunachaleswarar Temple · Main entrance</strong><p>Allow time for darshan at Annamalaiyar and Unnamulai Amman. Look for Pathala Lingam, Kambathu Ilayanar, Periya Nandi, Sivaganga Theertham and Vinayagar, Sambandha Vinayagar, Gopura Ilayanar, Kalyana Sundareswarar, the Thousand-Pillared Hall and the historic gopurams.</p><p>Indoor GPS cannot pinpoint individual shrines. Ask temple staff for directions and follow access notices.</p><p><a href="${apple}" target="_blank" rel="noopener noreferrer">Apple Maps ↗</a> · <a href="${google}" target="_blank" rel="noopener noreferrer">Google Maps ↗</a></p></div>`
         );
       } else {
         marker.bindPopup(
@@ -704,12 +704,12 @@
       el.voiceButton.title = state.voiceEnabled ? "Voice guidance on" : "Voice guidance off";
     }
     if (state.voiceEnabled) {
-      const message = "Voice guidance is on. You will be alerted before reaching Adi Annamalaiyar Temple.";
+      const message = "Voice guidance is on. You will hear reminders for the next Lingam, Adi Annamalaiyar Temple and nearby spiritual places.";
       setStatus(message);
       speakGuidance(message);
     } else {
       window.speechSynthesis.cancel();
-      setStatus("Voice guidance is off. Temple approach messages will still appear on the map.");
+      setStatus("Voice guidance is off. Visual reminders for Lingams, ashrams and temple visits will still appear on the map.");
     }
   }
 
