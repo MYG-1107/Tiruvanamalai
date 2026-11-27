@@ -1,8 +1,9 @@
 /* Tiruvannamalai Pilgrim Guide — map and location interactions */
 const TIRUVANNAMALAI_CENTER = [12.2388, 79.0525];
 const MAX_LOCAL_FIT_DISTANCE_KM = 35;
-const MAP_MAX_ZOOM = 23;
+const MAP_MAX_ZOOM = 21;
 const MAP_NATIVE_MAX_ZOOM = 19;
+const ESRI_IMAGERY_NATIVE_ZOOM = 18;
 
 const TEMPLE_PLACES = [
   {
@@ -130,14 +131,17 @@ function makeBaseLayers(map) {
   const imagery = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     mapTileOptions({
-      maxNativeZoom: 23,
+      // Avoid Esri "Map data not yet available" tiles at local detail levels
+      // that are not actually covered around Tiruvannamalai. Leaflet enlarges
+      // the last reliable imagery tile for zoom levels 19–21.
+      maxNativeZoom: ESRI_IMAGERY_NATIVE_ZOOM,
       attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
     })
   );
 
   const imageryLabels = L.tileLayer(
     "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-    mapTileOptions({ attribution: "Labels &copy; Esri" })
+    mapTileOptions({ maxNativeZoom: 19, attribution: "Labels &copy; Esri" })
   );
 
   const satellite = L.layerGroup([imagery, imageryLabels]);

@@ -7,8 +7,9 @@
   "use strict";
 
   const MAP_CENTRE = [12.2388, 79.0525];
-  const MAP_MAX_ZOOM = 23;
+  const MAP_MAX_ZOOM = 21;
   const MAP_NATIVE_MAX_ZOOM = 19;
+  const ESRI_IMAGERY_NATIVE_ZOOM = 18;
   const ADI_APPROACH_METRES = 600;
   const ADI_ARRIVAL_METRES = 90;
   const EXPECTED_CIRCUIT_KM = 14;
@@ -126,13 +127,15 @@
     const imagery = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       tileOptions({
-        maxNativeZoom: 23,
+        // Do not request higher local zoom tiles that Esri fills with a
+        // "Map data not yet available" graphic. Leaflet upscales level 18 instead.
+        maxNativeZoom: ESRI_IMAGERY_NATIVE_ZOOM,
         attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"
       })
     );
     const labels = L.tileLayer(
       "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-      tileOptions({ attribution: "Labels &copy; Esri" })
+      tileOptions({ maxNativeZoom: 19, attribution: "Labels &copy; Esri" })
     );
     const satelliteWithLabels = L.layerGroup([imagery, labels]);
     satelliteWithLabels.addTo(state.map);
