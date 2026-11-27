@@ -91,6 +91,9 @@
     ["Kambathu Ilayanar", "The Murugan shrine associated with the pillar legend."],
     ["Periya Nandi", "The great Nandi facing the main sanctum."],
     ["Sivaganga Theertham and Vinayagar", "The sacred tank and nearby Vinayagar shrine."],
+    ["Sambandha Vinayagar", "A Vinayagar shrine in the outer courtyard."],
+    ["Gopura Ilayanar", "A Murugan shrine near one of the temple gopurams."],
+    ["Kalyana Sundareswarar", "A shrine of Shiva in the wedding form."],
     ["Thousand-Pillared Hall", "Look at the stone pillars and the historic mandapa."],
     ["Historic gopurams", "Notice the Raja Gopuram, Vallala Maharaja, Kili and Ammani Amman towers."]
   ];
