@@ -45,7 +45,7 @@ const TEMPLE_PLACES = [
 // Shrine positions are based on public OpenStreetMap-derived place listings.
 // They are map pins for orientation; visitors should confirm entrances locally.
 const GIRIVALAM_STOPS = [
-  { id: "indra-lingam", number: "1", name: "Indira Lingam", direction: "East", lat: 12.22925, lon: 79.07039, note: "Traditionally the first of the eight Lingams." },
+  { id: "indra-lingam", number: "1", name: "Indra Lingam", direction: "East", lat: 12.22925, lon: 79.07039, note: "Traditionally the first of the eight Lingams." },
   { id: "agni-lingam", number: "2", name: "Agni Lingam", direction: "South-East", lat: 12.2242, lon: 79.0590, note: "The south-eastern shrine, near Chengam Road." },
   { id: "yama-lingam", number: "3", name: "Yama Lingam", direction: "South", lat: 12.22644, lon: 79.04440, note: "The southern shrine on the Girivalam circuit." },
   { id: "niruthi-lingam", number: "4", name: "Niruthi Lingam", direction: "South-West", lat: 12.23466, lon: 79.03231, note: "The south-western shrine." },
@@ -400,6 +400,8 @@ function locateUser() {
         fitTempleArea();
         setLocationStatus("Location found. The map stays focused on Tiruvannamalai; your temple distances are calculated from your current location.");
       }
+      // Refit after the visitor guide adds the Lingams and nearby ashram markers.
+      window.fitAllVisitorPlaces?.();
     },
     (error) => {
       const messages = {

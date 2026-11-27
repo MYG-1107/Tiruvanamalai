@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="./styles.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
   <script src="./script.js" defer></script>
+  <script src="./pilgrim-guide.js" defer></script>
 </head>
 <body data-page="home">
   <header class="site-header">
@@ -77,7 +78,7 @@
             <h2>Temples to visit</h2>
             <p class="section-lede">Satellite imagery opens by default. Allow location access to see an approximate distance, select a temple to focus the map, or switch to the street layer when you need road labels.</p>
           </div>
-          <span class="section-note">More temples will be added in future updates.</span>
+          <span class="section-note">Eight Lingams · Ashrams · Hill caves · Temple highlights</span>
         </div>
 
         <aside class="adi-visit-banner" aria-label="Important temple to visit">
@@ -112,8 +113,9 @@
             </div>
             <div class="map-legend">
               <span><i class="legend-dot user-dot"></i>Your location</span>
-              <span><i class="legend-dot temple-dot"></i>Adi Annamalaiyar</span>
-              <span><i class="legend-dot main-temple-dot"></i>Arunachaleswarar</span>
+              <span><i class="legend-dot temple-dot"></i>Important temples</span>
+              <span><i class="legend-dot lingam-dot"></i>Eight Lingams</span>
+              <span><i class="legend-dot ashram-dot"></i>Ashrams & hill caves</span>
             </div>
             <p class="map-attribution-note">Satellite imagery and place labels © Esri · Street map © OpenStreetMap contributors. Apple Maps and Google Maps open as external navigation options.</p>
           </div>
@@ -132,6 +134,66 @@
             </article>
           </div>
         </div>
+
+        <section class="visitor-guidance" aria-labelledby="visitor-guidance-title">
+          <div class="section-heading visitor-section-heading">
+            <div>
+              <p class="eyebrow">WHAT SHOULD I VISIT NEXT?</p>
+              <h2 id="visitor-guidance-title">Your pilgrimage stops</h2>
+              <p class="section-lede">Explore the traditional eight Lingams in clockwise order, then discover the ashrams and meditation caves around Arunachala.</p>
+            </div>
+          </div>
+
+          <aside class="nearby-advice" id="nearbyAdvice" aria-live="polite">
+            <span aria-hidden="true">⌖</span>
+            <div><strong>Your nearby pilgrimage guide</strong><p>Allow location access to receive suggestions as you approach a temple, Lingam or ashram. You can still browse every place below.</p></div>
+          </aside>
+
+          <div class="visitor-subheading">
+            <div><p class="eyebrow">THE TRADITIONAL CLOCKWISE SEQUENCE</p><h3>Ashta Lingams — eight sacred stops</h3></div>
+            <p>Stop for darshan at each shrine. Follow local signs and the current walking route.</p>
+          </div>
+          <div class="visitor-point-grid visitor-point-grid-lingams" id="lingamCards">
+            <p class="visitor-loading">Loading the eight Lingams…</p>
+          </div>
+
+          <div class="visitor-subheading visitor-subheading-spiritual">
+            <div><p class="eyebrow">ON AND AROUND ARUNACHALA</p><h3>Ashrams and hill caves</h3></div>
+            <p>Some places involve a quiet visit or an uphill walk. Check access before setting out.</p>
+          </div>
+          <div class="visitor-point-grid" id="spiritualPlaceCards">
+            <p class="visitor-loading">Loading nearby spiritual places…</p>
+          </div>
+
+          <section class="temple-highlights" aria-labelledby="temple-highlights-title">
+            <div>
+              <p class="eyebrow">WHEN YOU ENTER THE MAIN TEMPLE</p>
+              <h3 id="temple-highlights-title">Important places to look for inside Arunachaleswarar Temple</h3>
+              <p>Do not rush only for the main darshan. Allow time for these important shrines and architectural features. Ask temple staff for directions and follow access restrictions.</p>
+            </div>
+            <ol id="templeHighlightList" class="temple-highlight-list">
+              <li>Arunachaleswarar and Unnamulai Amman shrines</li>
+              <li>Pathala Lingam, Kambathu Ilayanar and Periya Nandi</li>
+              <li>Sivaganga Theertham, the Thousand-Pillared Hall and historic gopurams</li>
+            </ol>
+            <p class="temple-gps-note">GPS is not accurate enough to identify individual shrines inside a large temple building. This is a visit checklist, not indoor turn-by-turn navigation.</p>
+          </section>
+        </section>
+
+        <section class="place-gallery-section" aria-labelledby="place-gallery-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">SEE THE PLACES BEFORE YOU GO</p>
+              <h2 id="place-gallery-title">Sample photographs</h2>
+              <p class="section-lede">Photographs are searched from Wikimedia Commons. Open the source for the original image, photographer credit and licence.</p>
+            </div>
+          </div>
+          <p class="gallery-status" id="placeGalleryStatus" role="status" aria-live="polite">Loading sample photographs from Wikimedia Commons…</p>
+          <div class="place-image-grid" id="placeImageGallery">
+            <div class="place-image-card place-image-card-empty"><p>Loading place photographs…</p></div>
+          </div>
+        </section>
+
         <p class="privacy-note"><span aria-hidden="true">⌖</span> Your location is used in this page to estimate distances and show your map position. This website does not store it. Map or routing providers may process coordinates when you request directions. Distances are straight-line estimates, not walking distances.</p>
       </div>
     </section>

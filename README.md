@@ -4,8 +4,8 @@ A lightweight, static website hosted on GitHub Pages to help visitors explore th
 
 ## Pages
 
-- **Discover (index.html)** — interactive temple map, browser geolocation, temple cards and straight-line distance estimates for the first set of important temples.
-- **Live Girivalam map (/girivalam/)** — dedicated, map-only full-screen GPS experience. It finds the nearest point on the closed walking circuit, guides the pilgrim to that start, tracks clockwise progress, supports pause/resume and recognises completion after returning to the same point.
+- **Discover (index.html)** — interactive map of the eight Ashta Lingams, important temples, nearby ashrams and hill caves, GPS-based nearby suggestions, temple visit checklist and Commons photo gallery.
+- **Live Girivalam map (/girivalam/)** — full-screen GPS experience with all eight Lingam markers, nearby ashram / cave pins, next-Lingam approach reminders, Adi Annamalaiyar guidance, main-temple visit checklist, clockwise progress, pause/resume and circuit completion.
 - **Legacy Girivalam URL (girivalam.html)** — redirects to the new map-only page.
 - **Stay guide (accommodation.html)** — accommodation categories with map searches to help visitors compare nearby options.
 
@@ -97,3 +97,37 @@ This is an independent visitor guide, not an official temple or government websi
 Esri's World Imagery cache advertises global levels through 23, but actual imagery coverage varies from place to place. In areas without newer high-resolution imagery, the server can return a normal image tile containing the text “Map data not yet available”; this is not an HTTP tile error, so a regular Leaflet `tileerror` handler cannot detect it. The two Tiruvannamalai maps therefore cap satellite requests at native level 18 and allow visual overzoom through level 21. Leaflet requests the level-18 tile and scales it for closer views instead of requesting missing local detail. This trades sharpness at extreme zoom for a continuous map without the Esri no-data graphic. A genuine network failure still switches to a street map.
 
 Leaflet documents `maxNativeZoom` as the maximum source-tile zoom, with tiles above that level scaled for display: [Leaflet 1.9.4 TileLayer reference](https://leafletjs.com/reference-1.9.4.html). Esri documents the location-dependent imagery coverage and no-data tile behaviour: [Esri World Imagery coverage](https://www.arcgis.com/home/item.html?id=50c23e4987a44de4ab163e1baeab4a46), [Esri Community explanation](https://community.esri.com/cs/discussion/81070/map-data-not-yet-available).
+
+
+## Expanded landmark-aware pilgrimage guidance
+
+The homepage map now includes the complete Ashta Lingam sequence, Adi Annamalaiyar Temple, Arunachaleswarar Temple, Sri Ramanasramam, Sri Seshadri Swamigal Ashram, Yogi Ramsuratkumar Ashram, Virupaksha Cave and Skandashramam. The list is grouped so a visitor can browse the eight Lingams separately from the ashrams and hill caves. Each pinned place has a popup, a map-focus action and Apple Maps / Google Maps walking-direction links.
+
+The dedicated GPS tracker gives an approach message for the next Lingam while a Girivalam walk is active. It announces the next shrine at approximately 550 m and a near-arrival prompt within approximately 90 m. The existing Adi Annamalaiyar approach and arrival reminders remain in place. When GPS shows that the visitor is close to Sri Ramanasramam, Seshadri Swamigal Ashram, Yogi Ramsuratkumar Ashram, Virupaksha Cave or Skandashramam, the tracker shows a contextual stop suggestion; hill caves are identified as uphill visits that require a local access check.
+
+When the visitor comes within approximately 450 m of the main Arunachaleswarar Temple map point, the live tracker opens a compact visit checklist. It calls attention to the Annamalaiyar and Unnamulai Amman shrines, Pathala Lingam, Kambathu Ilayanar, Periya Nandi, Sivaganga Theertham and Vinayagar, the Thousand-Pillared Hall and historic gopurams. This is a practical checklist, not indoor navigation: a phone's outdoor GPS cannot reliably locate an individual sannidhi inside a large temple complex. Visitors should ask temple staff for directions and follow current access notices. The district administration's visitor information describes the temple's many sannidhis, sculptures, inscriptions, sacred tanks, mandapas and gopurams: [Tiruvannamalai District Administration — Places of Interest](https://tiruvannamalai.nic.in/places-of-interest/). The named shrine checklist is also cross-checked against this [supplementary shrine reference](https://www.arunachalamtemple.org/temple/shrines/); confirm on-site access locally.
+
+### Place coordinates and accuracy
+
+The eight Lingam map points retain the existing public map-derived coordinate set in the clockwise route. The additional map points currently used are:
+
+| Place | Map coordinates | Accuracy note |
+| --- | --- | --- |
+| Sri Ramanasramam | 12.22369, 79.05672 | Public map point; confirm the entrance locally |
+| Sri Seshadri Swamigal Ashram | 12.22455, 79.05890 | Approximate orientation point; check the signboard and entrance |
+| Yogi Ramsuratkumar Ashram | 12.21841, 79.05390 | Public map point; confirm the entrance locally |
+| Virupaksha Cave | 12.23386, 79.06167 | Hill-side map point; approach and access may vary |
+| Skandashramam | 12.23452, 79.06068 | Hill-side map point; approach and access may vary |
+
+The ashram and cave pins are useful orientation points, not surveyed door or entrance coordinates. The Sri Ramanasramam visitor information describes Skandashramam and Virupaksha Cave as hillside places reached from the ashram side; check the official [Sri Ramanasramam visitor information](https://www.sriramanamaharshi.org/visit-us/) for its current guidance. The Seshadri Ashram pin is explicitly labelled approximate in the interface. Do not rely on any map pin instead of local signage, temple staff, police or current route notices.
+
+### Sample photographs and attribution
+
+The homepage sample-photo gallery queries the public Wikimedia Commons MediaWiki API when the page loads. It requests a small set of matching image files and thumbnails, then displays the photographer / credit text, the reported licence and a link to each original Commons file page. No API key is required for these public queries; the request includes the Commons cross-origin parameter so a browser can read the response. The gallery loads the four searches one after another and keeps the map usable if the image API is unavailable.
+
+- [Wikimedia Commons — MediaWiki API Imageinfo](https://www.mediawiki.org/wiki/API:Imageinfo)
+- [MediaWiki API — Cross-site requests](https://www.mediawiki.org/wiki/API:Cross-site_requests)
+
+Images remain hosted by Wikimedia Commons; this site does not copy them into the repository. Always open the original file page and check its individual licence and attribution requirements before reusing an image elsewhere.
+
+The GPS proximity alerts use browser location only in page memory. The homepage uses a location watch to update approximate direct distances and the nearby suggestion; the dedicated tracker continues to keep the walking trace local. GPS may drift, map points may be offset from entrances, and browsers can pause location updates in the background. Treat the prompts as visit reminders, not proof that a pilgrim has entered a shrine or that a place is currently open.

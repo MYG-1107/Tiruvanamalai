@@ -587,3 +587,267 @@ button { font: inherit; }
   .adi-visit-banner { grid-template-columns: 38px 1fr; align-items: start; padding: 14px; }
   .adi-visit-links { grid-column: 2; }
 }
+
+
+/* Expanded pilgrimage companion: stops, nearby advice and API photo gallery */
+.visitor-guidance {
+  margin-top: 52px;
+  padding-top: 42px;
+  border-top: 1px solid var(--line);
+}
+.visitor-section-heading { margin-bottom: 22px; }
+.nearby-advice {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin: 20px 0 34px;
+  padding: 17px 19px;
+  border: 1px solid #d8dfd4;
+  border-radius: 13px;
+  background: #f0f4ed;
+  color: var(--green-dark);
+}
+.nearby-advice > span {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dce8d9;
+  font-size: 20px;
+}
+.nearby-advice strong { display: block; font-family: var(--serif); font-size: 18px; }
+.nearby-advice p { margin: 5px 0 0; color: #657166; font-size: 12px; line-height: 1.65; }
+.visitor-subheading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 25px 0 15px;
+}
+.visitor-subheading .eyebrow { margin-bottom: 7px; }
+.visitor-subheading h3 {
+  margin: 0;
+  color: var(--green-dark);
+  font-family: var(--serif);
+  font-size: clamp(22px, 3vw, 29px);
+  font-weight: 600;
+}
+.visitor-subheading > p {
+  max-width: 380px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.visitor-point-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+.visitor-point-grid-lingams { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.visitor-point-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffefa;
+}
+.visitor-point-number {
+  display: grid;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f2e6d4;
+  color: #88582b;
+  font-size: 11px;
+  font-weight: 850;
+}
+.visitor-point-copy { min-width: 0; }
+.visitor-point-category {
+  color: #91633a;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+.visitor-point-card h4 {
+  margin: 4px 0 0;
+  color: var(--green-dark);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.visitor-point-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+.visitor-point-card .visitor-point-tamil { color: #8b744f; font-size: 10px; }
+.visitor-point-card .visitor-point-distance {
+  color: var(--green);
+  font-weight: 750;
+  font-size: 9px;
+}
+.visitor-point-card .visitor-point-note { color: #9a693a; }
+.visitor-point-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.visitor-point-actions a,
+.visitor-point-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 27px;
+  padding: 5px 8px;
+  border: 1px solid #dfd8ca;
+  border-radius: 999px;
+  background: #fffefa;
+  color: var(--green-dark);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+}
+.visitor-point-actions a:hover,
+.visitor-point-actions button:hover { background: #f5efe3; }
+.visitor-loading { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+.visitor-subheading-spiritual { margin-top: 40px; }
+.temple-highlights {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 20px 36px;
+  margin-top: 38px;
+  padding: 23px;
+  border: 1px solid #e4d6bd;
+  border-radius: 14px;
+  background: #faf5eb;
+}
+.temple-highlights h3 {
+  margin: 0;
+  color: var(--green-dark);
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.temple-highlights > div > p:not(.eyebrow) {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.temple-highlight-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.temple-highlight-list li { display: flex; gap: 9px; }
+.temple-highlight-list li > span {
+  flex: 0 0 23px;
+  color: #a16d36;
+  font-size: 9px;
+  font-weight: 850;
+}
+.temple-highlight-list strong { color: var(--green-dark); font-size: 11px; }
+.temple-highlight-list p { margin: 3px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.temple-gps-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid #e8dcc8;
+  color: #816f59;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.place-gallery-section {
+  margin-top: 56px;
+  padding-top: 42px;
+  border-top: 1px solid var(--line);
+}
+.gallery-status { margin: -18px 0 17px; color: var(--muted); font-size: 10px; }
+.place-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+.place-image-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffefa;
+}
+.place-image-link { display: block; aspect-ratio: 4 / 3; background: #efede7; }
+.place-image-link img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.place-image-card h3 {
+  margin: 11px 12px 4px;
+  color: var(--green-dark);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.place-image-card p {
+  margin: 5px 12px 8px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.place-image-card > a:not(.place-image-link) {
+  display: inline-block;
+  margin: 0 12px 12px;
+  color: var(--green);
+  font-size: 9px;
+  font-weight: 750;
+}
+.place-image-card-empty { padding: 16px; }
+.place-image-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  padding: 16px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+}
+.pilgrim-marker--ashram { background: #55765b; }
+.pilgrim-marker--cave { background: #6a6c75; }
+.pilgrim-marker--lingam { background: #c27b3d; }
+.legend-dot.lingam-dot { background: #c27b3d; }
+.legend-dot.ashram-dot { background: #55765b; }
+
+@media (max-width: 1050px) {
+  .visitor-point-grid-lingams { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .visitor-point-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .place-image-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+  .visitor-guidance, .place-gallery-section { margin-top: 38px; padding-top: 30px; }
+  .visitor-subheading { display: block; }
+  .visitor-subheading > p { margin-top: 8px; }
+  .visitor-point-grid, .visitor-point-grid-lingams { grid-template-columns: 1fr; }
+  .temple-highlights { grid-template-columns: 1fr; padding: 17px; gap: 17px; }
+  .temple-highlight-list { grid-template-columns: 1fr; }
+  .place-image-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .place-image-card h3 { margin: 9px 9px 4px; font-size: 14px; }
+  .place-image-card p { margin: 5px 9px 8px; font-size: 8px; }
+  .place-image-card > a:not(.place-image-link) { margin: 0 9px 10px; font-size: 8px; }
+}
+@media (max-width: 390px) {
+  .place-image-grid { grid-template-columns: 1fr; }
+}
