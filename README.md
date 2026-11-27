@@ -4,8 +4,8 @@ A lightweight, static website hosted on GitHub Pages to help visitors explore th
 
 ## Pages
 
-- **Discover (index.html)** — interactive temple map, browser geolocation, temple cards and straight-line distance estimates for the first set of important temples.
-- **Live Girivalam map (/girivalam/)** — dedicated, map-only full-screen GPS experience. It finds the nearest point on the closed walking circuit, guides the pilgrim to that start, tracks clockwise progress, supports pause/resume and recognises completion after returning to the same point.
+- **Discover (index.html)** — interactive map of the eight Ashta Lingams, important temples, nearby ashrams and hill caves, GPS-based nearby suggestions, temple visit checklist and Commons photo gallery.
+- **Live Girivalam map (/girivalam/)** — full-screen GPS experience with all eight Lingam markers, nearby ashram / cave pins, next-Lingam approach reminders, Adi Annamalaiyar guidance, main-temple visit checklist, clockwise progress, pause/resume and circuit completion.
 - **Legacy Girivalam URL (girivalam.html)** — redirects to the new map-only page.
 - **Stay guide (accommodation.html)** — accommodation categories with map searches to help visitors compare nearby options.
 
