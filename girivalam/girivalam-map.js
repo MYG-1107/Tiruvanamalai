@@ -306,6 +306,7 @@
       return;
     }
     const bounds = L.latLngBounds(state.routePoints.map((point) => [point.lat, point.lon]));
+    SPIRITUAL_PLACES.forEach((place) => bounds.extend([place.lat, place.lon]));
     state.map.fitBounds(bounds.pad(0.07), { maxZoom: 15 });
   }
 
@@ -1007,7 +1008,10 @@
     showStopMarkers();
     wireControls();
 
-    const allPoints = ROUTE_STOPS.map((stop) => [stop.lat, stop.lon]);
+    const allPoints = [
+      ...ROUTE_STOPS.map((stop) => [stop.lat, stop.lon]),
+      ...SPIRITUAL_PLACES.map((place) => [place.lat, place.lon])
+    ];
     state.map.fitBounds(L.latLngBounds(allPoints).pad(0.1));
     window.setTimeout(() => state.map.invalidateSize(), 150);
 
