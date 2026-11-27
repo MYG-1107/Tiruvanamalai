@@ -454,12 +454,13 @@
   }
 
   function initialiseVisitorGuide() {
+    renderVisitorCards();
+    renderTempleHighlights();
+    loadPlaceGallery();
     if (!visitMap || !window.L) return;
 
     ASHTA_LINGAMS.forEach((stop) => makeMarker(stop, stop.number, "lingam"));
     SPIRITUAL_PLACES.forEach((place) => makeMarker(place, place.code, place.kind));
-    renderVisitorCards();
-    renderTempleHighlights();
     window.fitAllVisitorPlaces = fitAllVisitorPlaces;
     fitAllVisitorPlaces();
 
@@ -470,7 +471,6 @@
 
     startLocationWatch();
     if (latestLocation) updateTempleGuideDistances();
-    loadPlaceGallery();
   }
 
   document.addEventListener("DOMContentLoaded", initialiseVisitorGuide);
